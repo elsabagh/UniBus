@@ -1,0 +1,87 @@
+package com.example.unibus.navigation
+
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import com.example.unibus.ContainerAppState
+import com.example.unibus.SplashScreen
+import com.example.unibus.navigation.AppDestination.SignInDestination
+import com.example.unibus.navigation.AppDestination.SignUpDestination
+import com.example.unibus.presentation.driver.DriverScreen
+import com.example.unibus.presentation.signIn.SignInScreen
+import com.example.unibus.presentation.signUp.SignupScreen
+import com.example.unibus.presentation.user.UserHomeScreen
+
+
+@Composable
+fun NavGraph(
+    appState: ContainerAppState,
+    userRole: String?,
+    isAccountReady: Boolean,
+    modifier: Modifier = Modifier
+) {
+    NavHost(
+        navController = appState.navController,
+        startDestination = "splash",
+        modifier = modifier
+    ) {
+        // ✅ شاشة البداية
+        composable(route = "splash") {
+            SplashScreen(
+                isAccountReady = isAccountReady,
+                userRole = userRole,
+                onSplashFinished = {
+                    val destination = when {
+                        !isAccountReady || userRole == null -> SignInDestination.route
+                        userRole == "driver" -> AppDestination.DriverHomeDestination.route
+                        else -> AppDestination.UserHomeDestination.route
+                    }
+                    appState.navigateSingleTopToAndPopupTo(destination, "splash")
+                }
+            )
+        }
+        composable(route = SignInDestination.route) {
+            SignInScreen(
+                onSignInClick = {
+                    appState.navigateSingleTopToAndPopupTo(
+                        route = AppDestination.UserHomeDestination.route,
+                        popUpToRoute = AppDestination.UserHomeDestination.route
+                    )
+                },
+                onSignUpClickNav = {
+                    appState.navigateSingleTopToAndPopupTo(
+                        route = SignUpDestination.route,
+                        popUpToRoute = SignUpDestination.route
+                    )
+                },
+                onDriverSignIn = {
+                    appState.navigateSingleTopToAndPopupTo(
+                        route = AppDestination.DriverHomeDestination.route,
+                        popUpToRoute = AppDestination.DriverHomeDestination.route
+                    )
+                }
+
+            )
+        }
+        composable(
+            route = SignUpDestination.route
+        ) {
+            SignupScreen(
+                navController = appState.navController,
+            )
+        }
+
+
+        composable(AppDestination.DriverHomeDestination.route) {
+            DriverScreen(navController = appState.navController)
+        }
+
+        composable(AppDestination.UserHomeDestination.route) {
+            UserHomeScreen(
+                navController = appState.navController,
+            )
+        }
+    }
+}
+

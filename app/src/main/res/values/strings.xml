@@ -1,0 +1,85 @@
+<resources>
+    <string name="app_name">Uni Bus</string>
+
+    <!-- Common -->
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="repeat_password">Repeat password</string>
+    <string name="generic_error">Something wrong happened. Please try again.</string>
+    <string name="email_error">Please insert a valid email.</string>
+    <string name="try_again">Try again</string>
+    <string name="ok">OK</string>
+    <string name="password_field_end_icon_hide_content_description">Hide password</string>
+    <string name="password_field_end_icon_show_content_description">Show password</string>
+    <string name="account">Account</string>
+    <string name="fill_all_fields">fill_all_fields</string>
+    <string name="branch_added_successfully">branch added successfully</string>
+    <string name="updated_account">updated account successfully</string>
+    <string name="account_update_failed">account update failed</string>
+    <string name="profile_updated_successfully">profile updated successfully</string>
+
+    <!-- LoginScreen -->
+    <string name="sign_in">Sign in</string>
+    <string name="login_details">Enter your login details</string>
+    <string name="empty_password_error">Password cannot be empty.</string>
+
+    <!-- SignUpScreen -->
+    <string name="sign_up">Sign up</string>
+    <string name="create_account_test">Create account Test</string>
+    <string name="password_error">Your password should have at least six characters and include one digit, one lower case letter and one upper case letter.</string>
+    <string name="password_match_error">Passwords do not match.</string>
+
+    <!-- Dialogs -->
+    <string name="sign_out_title">Sign out?</string>
+    <string name="sign_out_description">You will have to sign in again to see your tasks.</string>
+    <string name="delete_account_title">Delete account?</string>
+    <string name="delete_account_description">You will lose all your tasks and your account will be deleted. This action is irreversible.</string>
+    <string name="welcome_back">Welcome Back</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="guest">Guest</string>
+    <string name="sign_in_with_google">Sign in With Google</string>
+    <string name="sign_up_with_google">Sign up With Google</string>
+    <string name="sign_in_with_facebook">Sign in With Facebook</string>
+    <string name="sign_up_with_facebook">Sign up With Facebook</string>
+    <string name="don_t_have_an_account_sign_up">Don\'t have an account?</string>
+    <string name="already_have_an_account_sign_in">Already have an account?</string>
+    <string name="invalid_password_error">The password is invalid or the user does not have a password.</string>
+    <string name="authentication_failed">Authentication failed. Please try again.</string>
+    <string name="email_already_in_use">The email address is already in use by another account.</string>
+    <string name="account_creation_failed">Account creation failed</string>
+    <string name="create_your_account">Create Your Account</string>
+    <string name="forget_password">Forget Password</string>
+    <string name="please_enter_the_email_address">Please enter the email address</string>
+    <string name="send_email">Send Email</string>
+    <string name="verify_email">Verify Email</string>
+    <string name="conferm">Continue</string>
+    <string name="your_otp_code_has_been_verified_successfully">Your OTP code has been verified successfully</string>
+    <string name="reset_your_password">Reset  your password</string>
+    <string name="please_enter_new_password">please enter new password</string>
+    <string name="password_changed_successfully">Password changed successfully</string>
+    <string name="password_change_failed">Password change failed</string>
+    <string name="not_admin_error">not admin</string>
+    <string name="user_not_found">user_not_found</string>
+    <string name="invalid_role_error">invalid role</string>
+    <string name="empty_name_error">empty name </string>
+    <string name="image_upload_error">image upload</string>
+    <string name="please_upload_all_required_images">Please upload all required images</string>
+    <string name="created_account">created account</string>
+    <string name="account_status_not_accepted">Your account is not yet accepted. Please check your account status.</string>
+    <string name="review_the_account_and_you_can_activate_it_by_accept_or_reject_the_account">Review the account and you can activate it by accept, or reject the account</string>
+
+    <!--    Date and Time Picker-->
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
+    <string name="your_help_request_was_successful">Your help request was successful!</string>
+    <string name="please_enable_gps">Please enable GPS</string>
+    <string name="email_changed_successfully">email changed successfully</string>
+    <string name="message_notification">Your request has been received by emergency services. We are dispatching an emergency unit to your location. Estimated time of arrival: [estimated time based on Google Maps]. Please stay in a safe location and await the arrival of the unit.</string>
+    <string name="the_branch_is_at_full_capacity_cannot_send_more_reports">The branch is at full capacity.</string>
+    <string name="error_getting_travel_info">Error getting travel info</string>
+    <string name="your_account_has_been">Your account has been\n</string>
+    <string name="successfully_created">successfully created!</string>
+    <string name="login_now">Login now</string>
+
+</resources>

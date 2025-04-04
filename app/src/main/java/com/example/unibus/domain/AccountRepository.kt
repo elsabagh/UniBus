@@ -23,6 +23,8 @@ interface AccountRepository {
 
     suspend fun getCurrentUserEmail(): String?
 
+    suspend fun updateUserEmail(currentPassword: String, newEmail: String): Result<Unit>
+
     suspend fun getCurrentUser(): User?
 
     suspend fun changePassword(newPassword: String)

@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -19,9 +18,9 @@ import com.example.unibus.ui.theme.MainColor
 fun AppHeader() {
     Row(
         modifier = Modifier
-            .fillMaxWidth()
             .background(MainColor)
-            .padding(16.dp),
+            .padding(16.dp)
+            .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {

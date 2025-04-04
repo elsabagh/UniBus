@@ -19,14 +19,14 @@ class DriverViewModel @Inject constructor(
     private val _driver = MutableStateFlow<User?>(null)
     val driver: StateFlow<User?> = _driver
 
-    private val _isAccountSignedOut = MutableStateFlow(false)
-    val isAccountSignedOut get() = _isAccountSignedOut
+    init {
+        loadCurrentUser()
+    }
 
-
-    fun signOutFromAccount() {
+    private fun loadCurrentUser() {
         viewModelScope.launch {
-            accountRepository.signOut()
-            _isAccountSignedOut.value = true
+            _driver.value = accountRepository.getCurrentUser()
         }
     }
+
 }

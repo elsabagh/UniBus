@@ -12,6 +12,8 @@ import com.example.unibus.presentation.driver.DriverScreen
 import com.example.unibus.presentation.signIn.SignInScreen
 import com.example.unibus.presentation.signUp.SignupScreen
 import com.example.unibus.presentation.user.UserHomeScreen
+import com.example.unibus.presentation.user.profile.editProfile.EditProfile
+import com.example.unibus.presentation.user.profile.profileDetails.ProfileUserDetails
 
 
 @Composable
@@ -26,7 +28,6 @@ fun NavGraph(
         startDestination = "splash",
         modifier = modifier
     ) {
-        // ✅ شاشة البداية
         composable(route = "splash") {
             SplashScreen(
                 isAccountReady = isAccountReady,
@@ -80,6 +81,18 @@ fun NavGraph(
         composable(AppDestination.UserHomeDestination.route) {
             UserHomeScreen(
                 navController = appState.navController,
+            )
+        }
+        composable(AppDestination.ProfileUserDestination.route) {
+            ProfileUserDetails(
+                navController = appState.navController,
+            )
+        }
+        composable("Edit_Profile/{userId}") { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId") ?: ""
+            EditProfile(
+                navController = appState.navController,
+                userId = userId
             )
         }
     }

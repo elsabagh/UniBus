@@ -2,9 +2,12 @@ package com.example.unibus.data.repository
 
 
 import android.util.Log
+import com.example.unibus.data.models.User
 import com.example.unibus.domain.StorageFirebaseRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -33,4 +36,30 @@ class StorageFirebaseRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun getUserById(userId: String): Flow<User> {
+        return flow {
+            val userDoc = fireStore.collection("users").document(userId).get().await()
+            val user = userDoc.toObject(User::class.java)
+            emit(user ?: User())
+        }
+    }
+
+    override suspend fun updateUserProfile(updatedUser: User) {
+        try {
+            val userRef = fireStore.collection("users").document(updatedUser.userId)
+
+            userRef.update(
+                mapOf(
+                    "userName" to updatedUser.userName,
+                    "email" to updatedUser.email,
+                    "mobile" to updatedUser.phoneNumber,
+                    "userPhoto" to updatedUser.userPhoto,
+                    "idNumber" to updatedUser.idNumber,
+                )
+            ).await()
+        } catch (e: Exception) {
+            Log.e("ProfileDetailsViewModel", "Failed to update profile: ${e.message}")
+            throw e
+        }
+    }
 }

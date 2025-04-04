@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import com.example.unibus.ui.theme.MainColor
 
@@ -16,14 +17,22 @@ import com.example.unibus.ui.theme.MainColor
 @Composable
 fun TopAppBar(label: String, navController: NavController) {
     TopAppBar(
-        title = { Text(label) },
+        title = {
+            Text(
+                text = label,
+                color = Color.White
+            )
+        },
         navigationIcon = {
-            IconButton(onClick = { navController.popBackStack()}) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(
+                    Icons.Default.ArrowBack, contentDescription = "Back",
+                    tint = Color.White
+                )
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MainColor // اللون الأصفر
+            containerColor = MainColor
         )
     )
 }

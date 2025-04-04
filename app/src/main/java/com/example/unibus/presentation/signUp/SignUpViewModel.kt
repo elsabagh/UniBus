@@ -47,7 +47,6 @@ class SignUpViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(idNumber = newValue)
     }
 
-
     fun onPasswordChange(newValue: String) {
         _uiState.value = _uiState.value.copy(password = newValue)
     }

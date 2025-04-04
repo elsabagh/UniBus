@@ -15,8 +15,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -35,7 +40,9 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
 import com.example.unibus.data.models.User
+import com.example.unibus.navigation.AppDestination
 import com.example.unibus.presentation.common.AppHeader
+import com.example.unibus.ui.theme.ColorCardIcon
 import com.example.unibus.ui.theme.MainColor
 import com.example.unibus.ui.theme.ProfileColorCard
 
@@ -46,17 +53,64 @@ fun UserHomeScreen(
     val userHomeViewModel: UserHomeViewModel = hiltViewModel()
     val user by userHomeViewModel.user.collectAsState()
 
-    Column {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MainColor),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(46.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(ColorCardIcon)
+        ) {
+            IconButton(onClick = {
+
+            }) {
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = "Profile",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .size(28.dp)
+                )
+            }
+        }
         AppHeader()
+
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(46.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(ColorCardIcon)
+        ) {
+            IconButton(onClick = {
+                navController.navigate(AppDestination.ProfileUserDestination.route)
+            }) {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Profile",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .size(28.dp)
+                )
+            }
+        }
+
+
     }
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 176.dp)
+            .padding(top = 172.dp)
             .padding(bottom = 16.dp)
     ) {
 
-        user?.let { user ->
+        user?.let {user ->
             UserCard(user)
         }
     }

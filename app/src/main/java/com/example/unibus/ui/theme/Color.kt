@@ -13,3 +13,6 @@ val Pink40 = Color(0xFF7D5260)
 val MainColor = Color(0xFF214F9A)
 
 val ProfileColorCard = Color(0xFFFFB731)
+val ColorCardIcon = Color(0xFF597BB3)
+val colorButtonRed = Color(0xFFFF3B30)
+val itemColorProfile = Color(0xFFEBEFF4)

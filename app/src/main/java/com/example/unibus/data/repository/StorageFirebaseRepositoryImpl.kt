@@ -62,4 +62,21 @@ class StorageFirebaseRepositoryImpl @Inject constructor(
             throw e
         }
     }
+
+    override suspend fun getAvailableBuses(): List<User> {
+        return try {
+            val snapshot = fireStore.collection("users")
+                .whereEqualTo("role", "driver")
+                .whereEqualTo("available", "available")
+                .get()
+                .await()
+
+            snapshot.documents.mapNotNull { it.toObject(User::class.java) }
+
+        } catch (e: Exception) {
+            Log.e("FirebaseRepo", "Error fetching available buses", e)
+            emptyList()
+        }
+    }
+
 }

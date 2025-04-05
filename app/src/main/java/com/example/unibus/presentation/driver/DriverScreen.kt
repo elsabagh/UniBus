@@ -1,9 +1,11 @@
 package com.example.unibus.presentation.driver
 
 
+import android.widget.Button
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -20,10 +23,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -41,15 +42,13 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
+import com.example.unibus.R
 import com.example.unibus.data.models.User
 import com.example.unibus.navigation.AppDestination
-import com.example.unibus.navigation.AppDestination.SignInDestination
 import com.example.unibus.presentation.common.AppHeader
-import com.example.unibus.presentation.user.UserCard
 import com.example.unibus.ui.theme.ColorCardIcon
 import com.example.unibus.ui.theme.MainColor
 import com.example.unibus.ui.theme.ProfileColorCard
-
 
 @Composable
 fun DriverScreen(
@@ -117,10 +116,24 @@ fun DriverScreen(
             .padding(bottom = 16.dp)
     ) {
 
-        driver?.let {user ->
+        driver?.let { user ->
             DriverCard(user)
+
+            CurrentTrip()
+
+            Spacer(modifier = Modifier.height(16.dp))
+            UniversityLocation(
+                onClick = {
+                    navController.navigate(AppDestination.UniLocationDestinationDriverDestination.route)
+                }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            StudentsCard()
+            Spacer(modifier = Modifier.height(16.dp))
+            ButtonEmptyBus()
         }
     }
+
 }
 
 @Composable
@@ -180,3 +193,255 @@ fun DriverCard(
         }
     }
 }
+
+@Composable
+fun CurrentTrip() {
+
+    Text(
+        text = "Current Trip",
+        fontSize = 16.sp,
+        fontWeight = FontWeight.Normal,
+        color = Color.Gray,
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .padding(top = 16.dp)
+    )
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+            .padding(horizontal = 16.dp)
+            .border(1.dp, Color.Gray, RoundedCornerShape(12.dp))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)
+                .padding(vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = rememberImagePainter(R.drawable.icon_bus),
+                    contentDescription = "Trip Image",
+                    modifier = Modifier.size(24.dp),
+                )
+                Text(
+                    text = "Trip NO :",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Gray
+                )
+                Text(
+                    text = "#123",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MainColor
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.Green)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "Available Seats",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.White,
+                        )
+                        Text(
+                            text = "22",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.White,
+                        )
+                    }
+                }
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.Red)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "Reserved Seats",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.White,
+                        )
+
+                        Text(
+                            text = "15",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.White,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun UniversityLocation(
+     onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier.clickable(
+            onClick = onClick
+        )
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+            .padding(horizontal = 16.dp)
+            .border(1.dp, Color.Gray, RoundedCornerShape(12.dp))
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Image(
+                    painter = rememberImagePainter(R.drawable.courthouse),
+                    contentDescription = "Trip Image",
+                    modifier = Modifier.size(28.dp),
+                )
+                Text(
+                    text = "University Location",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Color.Black,
+
+                    )
+            }
+
+            Icon(
+                painter = rememberImagePainter(R.drawable.direct_right),
+                contentDescription = "Location Icon",
+                tint = MainColor,
+                modifier = Modifier.size(24.dp)
+            )
+
+        }
+    }
+}
+
+@Composable
+fun StudentsCard() {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+            .padding(horizontal = 16.dp)
+            .border(1.dp, Color.Gray, RoundedCornerShape(12.dp))
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Image(
+                    painter = rememberImagePainter(R.drawable.user_square),
+                    contentDescription = "Trip Image",
+                    modifier = Modifier.size(28.dp),
+                )
+                Text(
+                    text = "Students",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Color.Black,
+
+                    )
+            }
+
+            Icon(
+                painter = rememberImagePainter(R.drawable.direct_right),
+                contentDescription = "Location Icon",
+                tint = MainColor,
+                modifier = Modifier.size(24.dp)
+            )
+
+        }
+    }
+}
+
+@Composable
+fun ButtonEmptyBus(){
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+            .padding(horizontal = 16.dp)
+            .border(2.dp, MainColor, RoundedCornerShape(12.dp))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)
+                .padding(horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+
+            Text(
+                text = "Empty Bus",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = MainColor,
+                modifier = Modifier
+                    .padding(vertical = 16.dp)
+                    .clickable {
+                        // Handle button click
+                    }
+            )
+        }
+    }
+}
+

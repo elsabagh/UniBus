@@ -9,9 +9,12 @@ import com.example.unibus.SplashScreen
 import com.example.unibus.navigation.AppDestination.SignInDestination
 import com.example.unibus.navigation.AppDestination.SignUpDestination
 import com.example.unibus.presentation.driver.DriverScreen
+import com.example.unibus.presentation.driver.uniLocation.UniLocationScreen
 import com.example.unibus.presentation.signIn.SignInScreen
 import com.example.unibus.presentation.signUp.SignupScreen
 import com.example.unibus.presentation.user.UserHomeScreen
+import com.example.unibus.presentation.user.availableBuses.AvailableBuses
+import com.example.unibus.presentation.user.newTrip.NewTripScreen
 import com.example.unibus.presentation.user.profile.editProfile.EditProfile
 import com.example.unibus.presentation.user.profile.profileDetails.ProfileUserDetails
 
@@ -77,6 +80,11 @@ fun NavGraph(
         composable(AppDestination.DriverHomeDestination.route) {
             DriverScreen(navController = appState.navController)
         }
+        composable(AppDestination.UniLocationDestinationDriverDestination.route) {
+            UniLocationScreen(
+                navController = appState.navController,
+            )
+        }
 
         composable(AppDestination.UserHomeDestination.route) {
             UserHomeScreen(
@@ -85,6 +93,16 @@ fun NavGraph(
         }
         composable(AppDestination.ProfileUserDestination.route) {
             ProfileUserDetails(
+                navController = appState.navController,
+            )
+        }
+        composable(AppDestination.NewTripDestination.route) {
+            NewTripScreen(
+                navController = appState.navController,
+            )
+        }
+        composable(AppDestination.AvailableBusesDestination.route) {
+            AvailableBuses(
                 navController = appState.navController,
             )
         }

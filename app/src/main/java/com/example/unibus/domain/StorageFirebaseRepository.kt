@@ -11,4 +11,4 @@ interface StorageFirebaseRepository {
 
     suspend fun updateUserProfile(updatedUser: User)
 
-}
+    suspend fun getAvailableBuses(): List<User>}

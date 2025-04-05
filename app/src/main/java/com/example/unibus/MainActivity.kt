@@ -4,8 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.material3.Surface
 import com.example.emergen_app.ContainerApp
-import com.example.unibus.ui.theme.UniBusTheme
+import com.example.unibus.presentation.common.LocationPermissionHandler
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -14,7 +15,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            UniBusTheme {
+            Surface {
+                LocationPermissionHandler()
                 ContainerApp()
             }
         }

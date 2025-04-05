@@ -1,8 +1,10 @@
 package com.example.unibus.presentation.user
 
+import android.graphics.drawable.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,12 +12,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
@@ -39,6 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
+import com.example.unibus.R
 import com.example.unibus.data.models.User
 import com.example.unibus.navigation.AppDestination
 import com.example.unibus.presentation.common.AppHeader
@@ -110,8 +115,14 @@ fun UserHomeScreen(
             .padding(bottom = 16.dp)
     ) {
 
-        user?.let {user ->
+        user?.let { user ->
             UserCard(user)
+            Spacer(modifier = Modifier.height(16.dp))
+            NewTripCard(
+                onNewTripClick = {
+                    navController.navigate(AppDestination.NewTripDestination.route)
+                }
+            )
         }
     }
 }
@@ -173,6 +184,100 @@ fun UserCard(
         }
     }
 }
+
+@Composable
+fun NewTripCard(onNewTripClick: () -> Unit) {
+    Text(
+        text = "Current Trip",
+        fontSize = 16.sp,
+        fontWeight = FontWeight.Normal,
+        color = Color.Gray,
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .padding(top = 16.dp)
+    )
+    Card(
+        modifier = Modifier.clickable(
+            onClick = onNewTripClick
+        )
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+            .padding(horizontal = 16.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Image(
+                painter = rememberImagePainter(R.drawable.icon_bus),
+                contentDescription = "Bus",
+                modifier = Modifier
+                    .size(100.dp)
+                    .padding(16.dp)
+            )
+            Text(
+                text = "There are no trips",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Gray
+            )
+            Text(
+                text = "available at the moment",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Gray
+            )
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 16.dp)
+                    .clip(RoundedCornerShape(16.dp)),
+                colors = CardDefaults.cardColors(MainColor),
+            ) {
+                Row(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                            .padding(end = 8.dp)
+                    ) {
+                        Image(
+                            painter = rememberImagePainter(R.drawable.bus_icon_w),
+                            contentDescription = "Add",
+                            modifier = Modifier
+                                .size(30.dp)
+                                .padding(end = 8.dp)
+                        )
+                        Text(
+                            text = "New trip",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Arrow",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+
+        }
+    }
+}
+
 
 @Preview(showBackground = true)
 @Composable

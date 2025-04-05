@@ -27,8 +27,20 @@ interface AppDestination {
         override val route = "Notification_User"
     }
 
+    object NewTripDestination : AppDestination {
+        override val route = "New_trip"
+    }
+
+    object AvailableBusesDestination : AppDestination {
+        override val route = "Available_Buses"
+    }
+
     object DriverHomeDestination : AppDestination {
         override val route = "Driver_Home"
+    }
+
+    object UniLocationDestinationDriverDestination : AppDestination {
+        override val route = "UniLocationDestination"
     }
 
     object ProfileDriverDestination : AppDestination {

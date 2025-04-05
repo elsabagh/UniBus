@@ -1,7 +1,6 @@
 package com.example.unibus.presentation.driver
 
 
-import android.widget.Button
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,16 +16,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -49,6 +50,8 @@ import com.example.unibus.presentation.common.AppHeader
 import com.example.unibus.ui.theme.ColorCardIcon
 import com.example.unibus.ui.theme.MainColor
 import com.example.unibus.ui.theme.ProfileColorCard
+import com.example.unibus.ui.theme.colorCardGreen
+import com.example.unibus.ui.theme.colorCardRed
 
 @Composable
 fun DriverScreen(
@@ -59,55 +62,63 @@ fun DriverScreen(
     val driver by viewModel.driver.collectAsState()
 
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MainColor),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
+    Column {
+        Row(
             modifier = Modifier
-                .size(46.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(ColorCardIcon)
+                .fillMaxWidth()
+                .background(MainColor),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = {
-
-            }) {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Profile",
-                    tint = Color.White,
-                    modifier = Modifier
-                        .size(28.dp)
-                )
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(46.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(ColorCardIcon)
+            ) {
+                IconButton(
+                    onClick = {},
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = "Profile",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(28.dp)
+                    )
+                }
             }
-        }
-        AppHeader()
+            AppHeader()
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(46.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(ColorCardIcon)
+            ) {
+                IconButton(onClick = {
+                    navController.navigate(AppDestination.ProfileUserDestination.route)
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Profile",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(28.dp)
+                    )
+                }
+            }
 
-        Box(
-            contentAlignment = Alignment.Center,
+        }
+        Row(
             modifier = Modifier
-                .size(46.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(ColorCardIcon)
+                .fillMaxWidth()
+                .height(50.dp)
+                .background(color = MaterialTheme.colorScheme.background)
         ) {
-            IconButton(onClick = {
-                navController.navigate(AppDestination.ProfileUserDestination.route)
-            }) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Profile",
-                    tint = Color.White,
-                    modifier = Modifier
-                        .size(28.dp)
-                )
-            }
+
         }
-
-
     }
     Column(
         modifier = Modifier
@@ -118,19 +129,30 @@ fun DriverScreen(
 
         driver?.let { user ->
             DriverCard(user)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = MaterialTheme.colorScheme.background)
+                    .verticalScroll(
+                        rememberScrollState()
+                    )
 
-            CurrentTrip()
+            ) {
+                CurrentTrip(
+                    driver = user
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
-            UniversityLocation(
-                onClick = {
-                    navController.navigate(AppDestination.UniLocationDestinationDriverDestination.route)
-                }
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            StudentsCard()
-            Spacer(modifier = Modifier.height(16.dp))
-            ButtonEmptyBus()
+                Spacer(modifier = Modifier.height(8.dp))
+                UniversityLocation(
+                    onClick = {
+                        navController.navigate(AppDestination.UniLocationDestinationDriverDestination.route)
+                    }
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                StudentsCard()
+                Spacer(modifier = Modifier.height(8.dp))
+                ButtonEmptyBus()
+            }
         }
     }
 
@@ -195,10 +217,11 @@ fun DriverCard(
 }
 
 @Composable
-fun CurrentTrip() {
-
+fun CurrentTrip(
+    driver: User
+) {
     Text(
-        text = "Current Trip",
+        text = "Current Trip:",
         fontSize = 16.sp,
         fontWeight = FontWeight.Normal,
         color = Color.Gray,
@@ -216,7 +239,7 @@ fun CurrentTrip() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -235,13 +258,13 @@ fun CurrentTrip() {
                 )
                 Text(
                     text = "Trip NO :",
-                    fontSize = 14.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Gray
                 )
                 Text(
-                    text = "#123",
-                    fontSize = 14.sp,
+                    text = "#${driver.tripNo}",
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MainColor
                 )
@@ -258,22 +281,23 @@ fun CurrentTrip() {
                     modifier = Modifier
                         .weight(1f)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(Color.Green)
+                        .background(colorCardGreen)
                 ) {
                     Row(
-                        modifier = Modifier.padding(vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp),
+                        horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
                             text = "Available Seats",
-                            fontSize = 14.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White,
                         )
+                        Spacer(modifier = Modifier.weight(1f))
                         Text(
-                            text = "22",
-                            fontSize = 14.sp,
+                            text = driver.availableSeats,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White,
                         )
@@ -284,23 +308,23 @@ fun CurrentTrip() {
                     modifier = Modifier
                         .weight(1f)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(Color.Red)
+                        .background(colorCardRed)
                 ) {
                     Row(
-                        modifier = Modifier.padding(vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp),
+                        horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
                             text = "Reserved Seats",
-                            fontSize = 14.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White,
                         )
-
+                        Spacer(modifier = Modifier.weight(1f))
                         Text(
-                            text = "15",
-                            fontSize = 14.sp,
+                            text = driver.reservedSeats,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White,
                         )
@@ -313,21 +337,22 @@ fun CurrentTrip() {
 
 @Composable
 fun UniversityLocation(
-     onClick: () -> Unit
+    onClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier.clickable(
-            onClick = onClick
-        )
+        modifier = Modifier
             .fillMaxWidth()
             .padding(top = 8.dp)
             .padding(horizontal = 16.dp)
             .border(1.dp, Color.Gray, RoundedCornerShape(12.dp))
+            .clickable(
+                onClick = onClick
+            )
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -348,9 +373,8 @@ fun UniversityLocation(
                     text = "University Location",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Normal,
-                    color = Color.Black,
-
-                    )
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
             }
 
             Icon(
@@ -376,7 +400,7 @@ fun StudentsCard() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -397,9 +421,8 @@ fun StudentsCard() {
                     text = "Students",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Normal,
-                    color = Color.Black,
-
-                    )
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
             }
 
             Icon(
@@ -414,7 +437,7 @@ fun StudentsCard() {
 }
 
 @Composable
-fun ButtonEmptyBus(){
+fun ButtonEmptyBus() {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -425,7 +448,7 @@ fun ButtonEmptyBus(){
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {

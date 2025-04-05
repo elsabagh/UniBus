@@ -18,3 +18,6 @@ val colorButtonRed = Color(0xFFFF3B30)
 val itemColorProfile = Color(0xFFEBEFF4)
 
 val colorCardAvailableDriver = Color(0xFFE3EBF8)
+
+val colorCardGreen = Color(0xFF3EB64C)
+val colorCardRed = Color(0xFFFF3B30)

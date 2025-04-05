@@ -19,7 +19,7 @@ fun AppHeader() {
     Row(
         modifier = Modifier
             .background(MainColor)
-            .padding(16.dp)
+            .padding(vertical = 16.dp)
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically

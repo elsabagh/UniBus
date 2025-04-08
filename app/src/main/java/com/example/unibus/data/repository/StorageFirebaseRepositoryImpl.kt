@@ -142,6 +142,28 @@ class StorageFirebaseRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun updateDriverSeatCount(driverBusId: String) {
+        try {
+            val db = FirebaseFirestore.getInstance()
+            val driverRef = db.collection("users").document(driverBusId)
+            val driverSnapshot = driverRef.get().await()
+
+            val currentReserved = driverSnapshot.getString("reservedSeats")?.toIntOrNull() ?: 0
+            val currentAvailable = driverSnapshot.getString("availableSeats")?.toIntOrNull() ?: 0
+
+            driverRef.update(
+                mapOf(
+                    "reservedSeats" to (currentReserved + 1).toString(),
+                    "availableSeats" to (currentAvailable - 1).coerceAtLeast(0).toString()
+                )
+            ).await()
+
+        } catch (e: Exception) {
+            Log.e("FirebaseRepo", "Error updating driver seat count", e)
+            throw e
+        }
+    }
+
     override suspend fun rejectBooking(userId: String) {
         try {
             FirebaseFirestore.getInstance().collection("bookedBus")
@@ -151,5 +173,45 @@ class StorageFirebaseRepositoryImpl @Inject constructor(
             Log.e("FirebaseRepo", "Error rejecting booking", e)
         }
     }
+
+    override suspend fun clearTripBookings(tripNo: String) {
+        try {
+            val db = FirebaseFirestore.getInstance()
+            val snapshot = db.collection("bookedBus")
+                .whereEqualTo("tripNo", tripNo)
+                .whereEqualTo("statusBook", "approved")
+                .get()
+                .await()
+
+            snapshot.documents.forEach { doc ->
+                doc.reference.delete().await()
+            }
+
+            Log.d("FirebaseRepo", "All approved bookings deleted for trip $tripNo")
+        } catch (e: Exception) {
+            Log.e("FirebaseRepo", "Error clearing trip bookings", e)
+            throw e
+        }
+    }
+
+    override suspend fun resetDriverSeats(driverId: String) {
+        try {
+            FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(driverId)
+                .update(
+                    mapOf(
+                        "reservedSeats" to "0",
+                        "availableSeats" to "42"
+                    )
+                ).await()
+
+            Log.d("FirebaseRepo", "Driver seats reset to 0/42")
+        } catch (e: Exception) {
+            Log.e("FirebaseRepo", "Error resetting seats", e)
+            throw e
+        }
+    }
+
 
 }

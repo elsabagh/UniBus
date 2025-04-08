@@ -25,11 +25,13 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -60,6 +62,11 @@ fun DriverScreen(
 
     val viewModel: DriverViewModel = hiltViewModel()
     val driver by viewModel.driver.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadCurrentUser()
+    }
+
 
 
     Column {
@@ -157,8 +164,14 @@ fun DriverScreen(
                     }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                ButtonEmptyBus()
+                ButtonEmptyBus(
+                    onClick = {
+                        viewModel.emptyBus()
+                    }
+                )
             }
+        } ?: run {
+            CircularProgressIndicator()
         }
     }
 
@@ -448,13 +461,18 @@ fun StudentsCard(
 }
 
 @Composable
-fun ButtonEmptyBus() {
+fun ButtonEmptyBus(
+    onClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 8.dp)
             .padding(horizontal = 16.dp)
             .border(2.dp, MainColor, RoundedCornerShape(12.dp))
+            .clickable {
+                onClick()
+            }
     ) {
         Column(
             modifier = Modifier
@@ -463,7 +481,6 @@ fun ButtonEmptyBus() {
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-
             Text(
                 text = "Empty Bus",
                 fontSize = 18.sp,
@@ -471,9 +488,7 @@ fun ButtonEmptyBus() {
                 color = MainColor,
                 modifier = Modifier
                     .padding(vertical = 16.dp)
-                    .clickable {
-                        // Handle button click
-                    }
+
             )
         }
     }

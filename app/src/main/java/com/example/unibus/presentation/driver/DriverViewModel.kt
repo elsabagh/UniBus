@@ -23,9 +23,26 @@ class DriverViewModel @Inject constructor(
         loadCurrentUser()
     }
 
-    private fun loadCurrentUser() {
+    fun loadCurrentUser() {
         viewModelScope.launch {
             _driver.value = accountRepository.getCurrentUser()
+        }
+    }
+
+    fun emptyBus() {
+        viewModelScope.launch {
+            val currentDriver = _driver.value ?: return@launch
+            val tripNo = currentDriver.tripNo
+            val driverId = currentDriver.userId
+
+            try {
+                storageRepository.clearTripBookings(tripNo)
+                storageRepository.resetDriverSeats(driverId)
+
+                loadCurrentUser()
+            } catch (e: Exception) {
+                // تقدر تضيف log أو handle error
+            }
         }
     }
 

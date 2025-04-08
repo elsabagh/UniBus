@@ -1,5 +1,6 @@
 package com.example.unibus.presentation.driver.notification
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.unibus.data.models.User
@@ -37,12 +38,18 @@ class NotificationDriverViewModel @Inject constructor(
         }
     }
 
-    fun approveBooking(userId: String) {
+    fun approveBooking(user: User) {
         viewModelScope.launch {
-            storageRepository.approveBooking(userId)
-            refreshBookings()
+            try {
+                storageRepository.approveBooking(user.userId)
+                storageRepository.updateDriverSeatCount(user.driverBusId)
+                refreshBookings()
+            } catch (e: Exception) {
+                Log.e("NotificationVM", "Error approving booking: ${e.message}")
+            }
         }
     }
+
 
     fun rejectBooking(userId: String) {
         viewModelScope.launch {

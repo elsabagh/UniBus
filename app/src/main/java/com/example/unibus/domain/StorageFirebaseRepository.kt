@@ -19,5 +19,12 @@ interface StorageFirebaseRepository {
 
     suspend fun approveBooking(userId: String)
 
+    suspend fun updateDriverSeatCount(driverBusId: String)
+
     suspend fun rejectBooking(userId: String)
+
+    suspend fun clearTripBookings(tripNo: String)
+
+    suspend fun resetDriverSeats(driverId: String)
+
 }

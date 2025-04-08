@@ -51,7 +51,7 @@ fun NotificationDriverScreen(
                     PassengerNotificationCard(
                         user = user,
                         onApprove = {
-                            notificationViewModel.approveBooking(user.userId)
+                            notificationViewModel.approveBooking(user)
                         },
                         onReject = {
                             notificationViewModel.rejectBooking(user.userId)

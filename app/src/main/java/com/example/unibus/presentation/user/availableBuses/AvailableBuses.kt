@@ -1,8 +1,10 @@
 package com.example.unibus.presentation.user.availableBuses
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,15 +21,22 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,6 +50,16 @@ import com.example.unibus.data.models.User
 import com.example.unibus.presentation.common.TopAppBar
 import com.example.unibus.ui.theme.MainColor
 import com.example.unibus.ui.theme.colorCardAvailableDriver
+import com.example.unibus.ui.theme.colorCardGreen
+import com.example.unibus.ui.theme.colorCardRed
+import com.example.unibus.utils.calculatePrice
+import com.example.unibus.utils.checkIfGpsEnabled
+import com.example.unibus.utils.fetchLocation
+import com.example.unibus.utils.snackbar.SnackBarManager
+import com.google.android.gms.location.LocationServices
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun AvailableBuses(
@@ -48,7 +67,8 @@ fun AvailableBuses(
 ) {
     val viewModel: AvailableBusesViewModel = hiltViewModel()
     val driversList = viewModel.drivers.collectAsState().value
-
+    val selectedBus = viewModel.selectedBus.collectAsState().value
+    var selectedPrice by remember { mutableStateOf("") }  // لحفظ السعر
     LaunchedEffect(true) {
         viewModel.getAvailableBuses()
     }
@@ -60,32 +80,124 @@ fun AvailableBuses(
                 modifier = Modifier
                     .padding(paddingValues)
                     .fillMaxSize()
+                    .background(Color.White)
                     .padding(top = 24.dp)
                     .padding(horizontal = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                Text(
+                    text = "Select Bus and confirm:",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Gray,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                LazyColumn(modifier = Modifier.weight(1f)) {
                     itemsIndexed(driversList) { _, driver ->
-                        BusCard(driver)
+                        BusCard(
+                            driver = driver,
+                            isSelected = driver == selectedBus,
+                            onBusSelected = { selectedDriver, price ->
+                                viewModel.selectBus(selectedDriver)  // تحديد الأتوبيس المختار
+                                selectedPrice = price  // حفظ السعر المختار
+                            }
+                        )
                     }
                 }
+                Spacer(modifier = Modifier.height(16.dp))
+
+                BookedButton(
+                    viewModel = viewModel,
+                    user = selectedBus ?: User(),
+                    price = selectedPrice  // تمرير السعر
+
+                )
             }
-        }
+        },
     )
 }
 
+@Composable
+fun BookedButton(
+    viewModel: AvailableBusesViewModel,
+    user: User,
+    price: String
+) {
+    val context = LocalContext.current
+    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+
+    // متغير لتخزين الموقع
+    var currentLocation by remember { mutableStateOf<Pair<Double, Double>?>(null) }
+    var currentTime by remember { mutableStateOf<String>("") }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+            .clip(RoundedCornerShape(8.dp)),
+        colors = CardDefaults.cardColors(MainColor),
+    ) {
+        Column(
+            modifier = Modifier
+                .clickable(
+                    onClick = {
+                        val isGpsEnabled = checkIfGpsEnabled(context)
+                        if (!isGpsEnabled) {
+                            Log.e("LocationDebug", "GPS is disabled")
+                            SnackBarManager.showMessage(R.string.please_enable_gps)
+                        } else {
+                            fetchLocation(fusedLocationClient, context) { latitude, longitude ->
+                                currentLocation = Pair(latitude, longitude)
+
+                                val currentDate = Date()
+                                val dateFormat =
+                                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                                currentTime = dateFormat.format(currentDate)
+
+                                val updatedUser = user.copy(
+                                    addressMaps = "${currentLocation?.first},${currentLocation?.second}",
+                                    busPrice = price
+                                )
+
+                                viewModel.bookBus(updatedUser)
+                            }
+                        }
+                    },
+                )
+                .fillMaxWidth()
+                .padding(vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "Join",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White,
+            )
+        }
+    }
+}
 
 @Composable
-fun BusCard(driver: User) {
+fun BusCard(driver: User, isSelected: Boolean, onBusSelected: (User, String) -> Unit) {
+
+    // فرض المسافة 1153 مترًا كما هو في المثال
+    val distanceInMeters = 1153
+    val price = calculatePrice(distanceInMeters)
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .border(1.dp, Color.Gray, RoundedCornerShape(12.dp))
+            .border(1.dp, if (isSelected) MainColor else Color.Gray, RoundedCornerShape(12.dp))
+            .clickable {
+                onBusSelected(driver, price)  // تمرير الأتوبيس المختار والسعر
+            }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
                 .background(Color.White)
                 .padding(horizontal = 16.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -106,7 +218,8 @@ fun BusCard(driver: User) {
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                Text(text = "1053m",
+                Text(
+                    text = "$distanceInMeters m",
                     color = MainColor,
                 )
 
@@ -120,7 +233,7 @@ fun BusCard(driver: User) {
                     modifier = Modifier,
                 )
                 Text(
-                    text = "10K.D",
+                    text = "$price",
                     modifier = Modifier.padding(start = 8.dp),
                     color = MainColor,
                 )
@@ -137,7 +250,7 @@ fun BusCard(driver: User) {
                     modifier = Modifier
                         .weight(1f)
                         .clip(RoundedCornerShape(6.dp))
-                        .background(Color.Green)
+                        .background(colorCardGreen)
                 ) {
                     Row(
                         modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
@@ -164,7 +277,7 @@ fun BusCard(driver: User) {
                     modifier = Modifier
                         .weight(1f)
                         .clip(RoundedCornerShape(6.dp))
-                        .background(Color.Red)
+                        .background(colorCardRed)
                 ) {
                     Row(
                         modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
@@ -228,6 +341,7 @@ fun BusCard(driver: User) {
                                 contentDescription = null,
                                 modifier = Modifier.size(16.dp)
                             )
+                            Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = driver.phoneNumber,
                                 fontSize = 12.sp,
@@ -250,6 +364,8 @@ fun BusCard(driver: User) {
     }
 }
 
+
+
 @Preview(showBackground = true)
 @Composable
 fun BusCardPreview() {
@@ -261,7 +377,11 @@ fun BusCardPreview() {
         reservedSeats = "5",
         phoneNumber = "123-456-7890"
     )
-    BusCard(driver = driver)
+    BusCard(
+        driver = driver,
+        onBusSelected = {_, _ -> },
+        isSelected = false
+    )
 }
 
 //@DrawableRes

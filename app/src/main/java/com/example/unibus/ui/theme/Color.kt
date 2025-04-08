@@ -14,6 +14,7 @@ val MainColor = Color(0xFF214F9A)
 
 val ProfileColorCard = Color(0xFFFFB731)
 val ColorCardIcon = Color(0xFF597BB3)
+val ColorCardStudents = Color(0xFFE3EBF8)
 val colorButtonRed = Color(0xFFFF3B30)
 val itemColorProfile = Color(0xFFEBEFF4)
 

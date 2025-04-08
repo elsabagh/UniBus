@@ -11,4 +11,13 @@ interface StorageFirebaseRepository {
 
     suspend fun updateUserProfile(updatedUser: User)
 
-    suspend fun getAvailableBuses(): List<User>}
+    suspend fun getAvailableBuses(): List<User>
+
+    suspend fun createBookBusRequest(user: User)
+
+    suspend fun getBookingsForTrip(tripNo: String, status: String): List<User>
+
+    suspend fun approveBooking(userId: String)
+
+    suspend fun rejectBooking(userId: String)
+}

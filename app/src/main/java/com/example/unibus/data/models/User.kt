@@ -17,4 +17,11 @@ data class User(
     val reservedSeats: String = "",
     val availableSeats: String = "",
     val tripNo: String = "",
+    val driverBusId: String = "",
+    val driverBusName: String = "",
+    val busPrice: String = "",
+    val bookedDate: String = "",
+    val bookedTime: String = "",
+    val bookedUserId: String = "",
+    val statusBook: String = "",
 )

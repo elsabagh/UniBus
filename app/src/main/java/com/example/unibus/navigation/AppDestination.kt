@@ -38,6 +38,9 @@ interface AppDestination {
     object DriverHomeDestination : AppDestination {
         override val route = "Driver_Home"
     }
+    object StudentsListDestination : AppDestination {
+        override val route = "Students_List"
+    }
 
     object UniLocationDestinationDriverDestination : AppDestination {
         override val route = "UniLocationDestination"
@@ -45,5 +48,8 @@ interface AppDestination {
 
     object ProfileDriverDestination : AppDestination {
         override val route = "Profile_Driver"
+    }
+    object NotificationDriverDestination : AppDestination {
+        override val route = "Notification_Driver"
     }
 }

@@ -78,7 +78,9 @@ fun DriverScreen(
                     .background(ColorCardIcon)
             ) {
                 IconButton(
-                    onClick = {},
+                    onClick = {
+                        navController.navigate(AppDestination.NotificationDriverDestination.route)
+                    },
                 ) {
                     Icon(
                         imageVector = Icons.Default.Notifications,
@@ -149,7 +151,11 @@ fun DriverScreen(
                     }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                StudentsCard()
+                StudentsCard(
+                    onClick = {
+                        navController.navigate(AppDestination.StudentsListDestination.route)
+                    }
+                )
                 Spacer(modifier = Modifier.height(8.dp))
                 ButtonEmptyBus()
             }
@@ -389,13 +395,18 @@ fun UniversityLocation(
 }
 
 @Composable
-fun StudentsCard() {
+fun StudentsCard(
+    onClick: () -> Unit = {}
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 8.dp)
             .padding(horizontal = 16.dp)
             .border(1.dp, Color.Gray, RoundedCornerShape(12.dp))
+            .clickable(
+                onClick = onClick
+            )
     ) {
         Row(
             modifier = Modifier

@@ -13,6 +13,7 @@ data class AvailableBusesState(
     val newSelectTime: String = "",
     val date: String = "",
     val availableDrivers: String = "",
+    val busPrice: String = "",
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
     val errorMessage: String? = null

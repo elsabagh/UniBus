@@ -9,6 +9,8 @@ import com.example.unibus.SplashScreen
 import com.example.unibus.navigation.AppDestination.SignInDestination
 import com.example.unibus.navigation.AppDestination.SignUpDestination
 import com.example.unibus.presentation.driver.DriverScreen
+import com.example.unibus.presentation.driver.notification.NotificationDriverScreen
+import com.example.unibus.presentation.driver.studentsApproveList.StudentsListScreen
 import com.example.unibus.presentation.driver.uniLocation.UniLocationScreen
 import com.example.unibus.presentation.signIn.SignInScreen
 import com.example.unibus.presentation.signUp.SignupScreen
@@ -82,6 +84,16 @@ fun NavGraph(
         }
         composable(AppDestination.UniLocationDestinationDriverDestination.route) {
             UniLocationScreen(
+                navController = appState.navController,
+            )
+        }
+        composable(AppDestination.NotificationDriverDestination.route) {
+            NotificationDriverScreen(
+                navController = appState.navController,
+            )
+        }
+        composable(AppDestination.StudentsListDestination.route) {
+            StudentsListScreen(
                 navController = appState.navController,
             )
         }

@@ -24,4 +24,6 @@ data class User(
     val bookedTime: String = "",
     val bookedUserId: String = "",
     val statusBook: String = "",
+    val dateTrip: String = "",
+    val timeTrip: String = "",
 )

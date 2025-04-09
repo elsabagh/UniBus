@@ -1,4 +1,4 @@
-package com.example.emergen_app
+package com.example.unibus
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,9 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.unibus.presentation.signIn.SignInViewModel
 import com.example.unibus.navigation.NavGraph
-import com.example.unibus.rememberAppState
+import com.example.unibus.presentation.signIn.SignInViewModel
 import com.example.unibus.ui.theme.UniBusTheme
 
 @OptIn(ExperimentalMaterial3Api::class)

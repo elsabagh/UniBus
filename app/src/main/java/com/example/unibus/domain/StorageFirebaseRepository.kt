@@ -11,6 +11,8 @@ interface StorageFirebaseRepository {
 
     suspend fun updateUserProfile(updatedUser: User)
 
+    suspend fun updateUserTrip(updatedUser: User)
+
     suspend fun getAvailableBuses(): List<User>
 
     suspend fun createBookBusRequest(user: User)
@@ -27,4 +29,7 @@ interface StorageFirebaseRepository {
 
     suspend fun resetDriverSeats(driverId: String)
 
+    suspend fun getBookingsForUser(userId: String, status: String): List<User>
+
+    suspend fun getBookedBusForUser(userId: String): User?
 }

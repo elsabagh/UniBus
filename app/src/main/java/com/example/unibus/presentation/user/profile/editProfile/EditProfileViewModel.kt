@@ -54,7 +54,6 @@ class EditProfileViewModel @Inject constructor(
         _editUserState.value = _editUserState.value.copy(idNumber = newValue)
     }
 
-
     fun onPasswordChange(newValue: String) {
         _editUserState.value = _editUserState.value.copy(password = newValue)
     }

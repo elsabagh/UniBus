@@ -52,9 +52,26 @@ class StorageFirebaseRepositoryImpl @Inject constructor(
                 mapOf(
                     "userName" to updatedUser.userName,
                     "email" to updatedUser.email,
-                    "mobile" to updatedUser.phoneNumber,
+                    "phoneNumber" to updatedUser.phoneNumber,
                     "userPhoto" to updatedUser.userPhoto,
                     "idNumber" to updatedUser.idNumber,
+                )
+            ).await()
+        } catch (e: Exception) {
+            Log.e("ProfileDetailsViewModel", "Failed to update profile: ${e.message}")
+            throw e
+        }
+    }
+
+    override suspend fun updateUserTrip(updatedUser: User) {
+        try {
+            val userRef = fireStore.collection("users").document(updatedUser.userId)
+
+            userRef.update(
+                mapOf(
+                    "addressMaps" to updatedUser.addressMaps,
+                    "dateTrip" to updatedUser.dateTrip,
+                    "timeTrip" to updatedUser.timeTrip,
                 )
             ).await()
         } catch (e: Exception) {
@@ -210,6 +227,54 @@ class StorageFirebaseRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Log.e("FirebaseRepo", "Error resetting seats", e)
             throw e
+        }
+    }
+
+    override suspend fun getBookingsForUser(userId: String, status: String): List<User> {
+        return try {
+            val snapshot = FirebaseFirestore.getInstance()
+                .collection("bookedBus")
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("statusBook", status)
+                .get()
+                .await()
+
+            snapshot.documents.mapNotNull { it.toObject(User::class.java) }
+        } catch (e: Exception) {
+            Log.e("FirebaseRepo", "Error fetching approved bookings", e)
+            emptyList()
+        }
+    }
+    override suspend fun getBookedBusForUser(userId: String): User? {
+        return try {
+            // البحث في مجموعة "bookedBus" عن السائق الذي يملك driverBusId المتطابق مع userId
+            val snapshot = fireStore.collection("bookedBus")
+                .whereEqualTo("userId", userId)
+                .get()
+                .await()
+
+            // إذا كان يوجد حجز لهذا المستخدم، نعيد تفاصيل السائق
+            if (!snapshot.isEmpty) {
+                val bookedBusData = snapshot.documents[0]
+                val driverBusId = bookedBusData.getString("driverBusId") ?: return null
+
+                // الآن نبحث في مجموعة "users" للحصول على السائق الذي يتطابق مع driverBusId
+                val driverSnapshot = fireStore.collection("users")
+                    .whereEqualTo("userId", driverBusId)
+                    .get()
+                    .await()
+
+                // إرجاع بيانات السائق إذا تم العثور عليها
+                return if (!driverSnapshot.isEmpty) {
+                    driverSnapshot.documents[0].toObject(User::class.java)
+                } else {
+                    null
+                }
+            }
+            null
+        } catch (e: Exception) {
+            Log.e("FirebaseRepo", "Error fetching booked bus for user", e)
+            null
         }
     }
 

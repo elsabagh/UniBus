@@ -1,6 +1,5 @@
 package com.example.unibus.presentation.user
 
-import android.graphics.drawable.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,6 +25,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import coil.compose.rememberImagePainter
 import com.example.unibus.R
 import com.example.unibus.data.models.User
@@ -50,6 +51,9 @@ import com.example.unibus.presentation.common.AppHeader
 import com.example.unibus.ui.theme.ColorCardIcon
 import com.example.unibus.ui.theme.MainColor
 import com.example.unibus.ui.theme.ProfileColorCard
+import com.example.unibus.ui.theme.colorCardAvailableDriver
+import com.example.unibus.ui.theme.colorCardGreen
+import com.example.unibus.ui.theme.colorCardRed
 
 @Composable
 fun UserHomeScreen(
@@ -57,6 +61,7 @@ fun UserHomeScreen(
 ) {
     val userHomeViewModel: UserHomeViewModel = hiltViewModel()
     val user by userHomeViewModel.user.collectAsState()
+    val bookedBus by userHomeViewModel.bookedBus.collectAsState()
 
     Row(
         modifier = Modifier
@@ -118,11 +123,187 @@ fun UserHomeScreen(
         user?.let { user ->
             UserCard(user)
             Spacer(modifier = Modifier.height(16.dp))
+
+        }
+        bookedBus?.let { bus ->
+            BooKBusCard(user = bus)
+        } ?: run {
             NewTripCard(
                 onNewTripClick = {
                     navController.navigate(AppDestination.NewTripDestination.route)
                 }
             )
+        }
+    }
+}
+
+@Composable
+fun BooKBusCard(
+    user: User,
+) {
+    Text(
+        text = "Current Trip",
+        fontSize = 16.sp,
+        fontWeight = FontWeight.Normal,
+        color = Color.Gray,
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .padding(top = 16.dp)
+    )
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+            .padding(vertical = 8.dp)
+            .border(1.dp, Color.Gray, RoundedCornerShape(12.dp))
+
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = rememberImagePainter(R.drawable.icon_bus),
+                    contentDescription = "Trip Image",
+                    modifier = Modifier.size(24.dp),
+                )
+                Text(text = "Trip NO: #${user.tripNo}")
+
+                Spacer(modifier = Modifier.weight(1f))
+
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(colorCardGreen)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "Available Seats",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.White,
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        Text(
+                            text = user.availableSeats,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.White,
+                        )
+                    }
+                }
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(colorCardRed)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "Reserved Seats",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.White,
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        Text(
+                            text = user.reservedSeats,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.White,
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Driver:",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Normal,
+                modifier = Modifier.align(Alignment.Start),
+                color = Color.Gray
+            )
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(colorCardAvailableDriver)
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    AsyncImage(
+                        model = user.userPhoto,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column {
+                        Text(
+                            text = user.userName,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row {
+                            Image(
+                                painter = rememberImagePainter(R.drawable.call),
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = user.phoneNumber,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Normal,
+                                color = MainColor
+                            )
+                        }
+                    }
+
+//                Spacer(modifier = Modifier.weight(1f))
+
+//                Image(
+//                    painter = painterResource(id = getFlagByNationality(driver.nationality)),
+//                    contentDescription = null,
+//                    modifier = Modifier.size(24.dp)
+//                )
+                }
+            }
         }
     }
 }
@@ -187,19 +368,11 @@ fun UserCard(
 
 @Composable
 fun NewTripCard(onNewTripClick: () -> Unit) {
-    Text(
-        text = "Current Trip",
-        fontSize = 16.sp,
-        fontWeight = FontWeight.Normal,
-        color = Color.Gray,
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .padding(top = 16.dp)
-    )
     Card(
-        modifier = Modifier.clickable(
-            onClick = onNewTripClick
-        )
+        modifier = Modifier
+            .clickable(
+                onClick = onNewTripClick
+            )
             .fillMaxWidth()
             .padding(top = 8.dp)
             .padding(horizontal = 16.dp)
@@ -248,7 +421,8 @@ fun NewTripCard(onNewTripClick: () -> Unit) {
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier
+                            .weight(1f)
                             .padding(end = 8.dp)
                     ) {
                         Image(

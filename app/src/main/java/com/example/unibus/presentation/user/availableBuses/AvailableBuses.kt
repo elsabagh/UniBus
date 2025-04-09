@@ -55,6 +55,7 @@ import com.example.unibus.ui.theme.colorCardRed
 import com.example.unibus.utils.calculatePrice
 import com.example.unibus.utils.checkIfGpsEnabled
 import com.example.unibus.utils.fetchLocation
+import com.example.unibus.utils.formatToTwoDecimalPlaces
 import com.example.unibus.utils.snackbar.SnackBarManager
 import com.google.android.gms.location.LocationServices
 import java.text.SimpleDateFormat
@@ -69,6 +70,8 @@ fun AvailableBuses(
     val driversList = viewModel.drivers.collectAsState().value
     val selectedBus = viewModel.selectedBus.collectAsState().value
     var selectedPrice by remember { mutableStateOf("") }  // لحفظ السعر
+    val driversWithDistance = viewModel.driversWithDistance.collectAsState().value
+
     LaunchedEffect(true) {
         viewModel.getAvailableBuses()
     }
@@ -78,10 +81,10 @@ fun AvailableBuses(
         content = { paddingValues ->
             Column(
                 modifier = Modifier
-                    .padding(paddingValues)
                     .fillMaxSize()
-                    .background(Color.White)
-                    .padding(top = 24.dp)
+                    .padding(paddingValues)
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(top = 8.dp)
                     .padding(horizontal = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -93,23 +96,26 @@ fun AvailableBuses(
                     modifier = Modifier.fillMaxWidth()
                 )
                 LazyColumn(modifier = Modifier.weight(1f)) {
-                    itemsIndexed(driversList) { _, driver ->
+                    itemsIndexed(driversWithDistance) { _, pair ->
+                        val driver = pair.first
+                        val distance = pair.second
+
                         BusCard(
                             driver = driver,
+                            distanceInMeters = distance,
                             isSelected = driver == selectedBus,
                             onBusSelected = { selectedDriver, price ->
-                                viewModel.selectBus(selectedDriver)  // تحديد الأتوبيس المختار
-                                selectedPrice = price  // حفظ السعر المختار
+                                viewModel.selectBus(selectedDriver)
+                                selectedPrice = price
                             }
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(16.dp))
 
                 BookedButton(
                     viewModel = viewModel,
                     user = selectedBus ?: User(),
-                    price = selectedPrice  // تمرير السعر
+                    price = selectedPrice
 
                 )
             }
@@ -121,24 +127,24 @@ fun AvailableBuses(
 fun BookedButton(
     viewModel: AvailableBusesViewModel,
     user: User,
-    price: String
+    price: String,
 ) {
     val context = LocalContext.current
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
-    // متغير لتخزين الموقع
     var currentLocation by remember { mutableStateOf<Pair<Double, Double>?>(null) }
     var currentTime by remember { mutableStateOf<String>("") }
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 8.dp)
+            .padding(vertical = 8.dp)
             .clip(RoundedCornerShape(8.dp)),
         colors = CardDefaults.cardColors(MainColor),
     ) {
         Column(
             modifier = Modifier
+                .fillMaxWidth()
                 .clickable(
                     onClick = {
                         val isGpsEnabled = checkIfGpsEnabled(context)
@@ -179,11 +185,16 @@ fun BookedButton(
 }
 
 @Composable
-fun BusCard(driver: User, isSelected: Boolean, onBusSelected: (User, String) -> Unit) {
+fun BusCard(
+    driver: User,
+    distanceInMeters: Double,
+    isSelected: Boolean,
+    onBusSelected: (User, String) -> Unit
+) {
 
-    // فرض المسافة 1153 مترًا كما هو في المثال
-    val distanceInMeters = 1153
+    val formattedDistance = formatToTwoDecimalPlaces(distanceInMeters)
     val price = calculatePrice(distanceInMeters)
+    val formattedPrice = formatToTwoDecimalPlaces(price.toDouble())
 
     Card(
         modifier = Modifier
@@ -191,14 +202,13 @@ fun BusCard(driver: User, isSelected: Boolean, onBusSelected: (User, String) -> 
             .padding(vertical = 8.dp)
             .border(1.dp, if (isSelected) MainColor else Color.Gray, RoundedCornerShape(12.dp))
             .clickable {
-                onBusSelected(driver, price)  // تمرير الأتوبيس المختار والسعر
+                onBusSelected(driver, formattedPrice)  // تمرير الأتوبيس المختار والسعر
             }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.background)
-                .background(Color.White)
                 .padding(horizontal = 16.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -219,7 +229,7 @@ fun BusCard(driver: User, isSelected: Boolean, onBusSelected: (User, String) -> 
                 Spacer(modifier = Modifier.weight(1f))
 
                 Text(
-                    text = "$distanceInMeters m",
+                    text = "$formattedDistance m",
                     color = MainColor,
                 )
 
@@ -233,7 +243,7 @@ fun BusCard(driver: User, isSelected: Boolean, onBusSelected: (User, String) -> 
                     modifier = Modifier,
                 )
                 Text(
-                    text = "$price",
+                    text = "$formattedPrice",
                     modifier = Modifier.padding(start = 8.dp),
                     color = MainColor,
                 )
@@ -365,7 +375,6 @@ fun BusCard(driver: User, isSelected: Boolean, onBusSelected: (User, String) -> 
 }
 
 
-
 @Preview(showBackground = true)
 @Composable
 fun BusCardPreview() {
@@ -379,8 +388,9 @@ fun BusCardPreview() {
     )
     BusCard(
         driver = driver,
-        onBusSelected = {_, _ -> },
-        isSelected = false
+        onBusSelected = { _, _ -> },
+        isSelected = false,
+        distanceInMeters = 44.4
     )
 }
 

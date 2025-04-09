@@ -24,4 +24,5 @@ class GraphHopperRepositoryImpl @Inject constructor(
             emit(Result.failure(e))
         }
     }
+
 }

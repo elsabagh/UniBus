@@ -1,5 +1,7 @@
 package com.example.unibus.presentation.user.newTrip
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -42,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -50,6 +53,9 @@ import com.example.unibus.R
 import com.example.unibus.navigation.AppDestination
 import com.example.unibus.presentation.common.TopAppBar
 import com.example.unibus.ui.theme.MainColor
+import com.example.unibus.utils.checkIfGpsEnabled
+import com.example.unibus.utils.updateLocation
+import com.google.android.gms.location.LocationServices
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -61,6 +67,7 @@ fun NewTripScreen(
 ) {
     val viewModel: NewTripViewModel = hiltViewModel()
     val state = viewModel.state.collectAsState()
+    val context = LocalContext.current
 
     Scaffold(
         topBar = { TopAppBar("New trip", navController) },
@@ -90,16 +97,19 @@ fun NewTripScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 SelectLocation(
-                    selectedLocation = state.value.selectLocation,
-                    onLocationSelected = { viewModel.onLocationChange(it) }
+                    context = context,
+                    uiState = state.value,
+                    viewModel = viewModel
                 )
+
                 Spacer(modifier = Modifier.height(16.dp))
                 AvailableBusesButton(
                     onClick = {
                         navController.navigate(
                             AppDestination.AvailableBusesDestination.route
                         )
-                    }
+                    },
+                    viewModel = viewModel
                 )
             }
         }
@@ -298,16 +308,11 @@ fun TimePickerDialog(
 // region SelectLocation
 @Composable
 fun SelectLocation(
-    selectedLocation: String,
-    onLocationSelected: (String) -> Unit
+    context: Context, uiState: NewTripState, viewModel: NewTripViewModel
 ) {
-    var showLocationPicker by remember { mutableStateOf(false) }
+    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
-    if (showLocationPicker) {
-        // Implement your location picker dialog here
-        // Call onLocationSelected with the selected location
-        showLocationPicker = false
-    }
+
     Column {
         Text(
             text = "Select location:",
@@ -316,9 +321,10 @@ fun SelectLocation(
             color = Color.Gray
         )
         OutlinedTextField(
-            value = selectedLocation,
-            onValueChange = {},
-            readOnly = true,
+            value = uiState.selectLocation,
+            onValueChange = {
+                viewModel::onLocationChange
+            },
             placeholder = {
                 Text(
                     text = "Location",
@@ -326,35 +332,55 @@ fun SelectLocation(
                 )
             },
             trailingIcon = {
-                IconButton(onClick = { showLocationPicker = true }) {
+                IconButton(onClick = {
+                    val isGpsEnabled = checkIfGpsEnabled(context)
+                    if (!isGpsEnabled) {
+                        Toast.makeText(context, "Please enable GPS", Toast.LENGTH_SHORT).show()
+                        return@IconButton
+                    }
+                    updateLocation(fusedLocationClient, context) { location ->
+                        viewModel.onLocationChange(location)
+                    }
+                }) {
                     Icon(Icons.Default.LocationOn, contentDescription = "Select location")
                 }
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { showLocationPicker = true }
+                .clickable {
+
+                }
         )
     }
 }
+
+
 // endregion
 
 // region AvailableBusesButton
 @Composable
 fun AvailableBusesButton(
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    viewModel: NewTripViewModel
 ) {
+    val state = viewModel.state.collectAsState().value
+    val isEnabled = state.selectLocation.isNotBlank()
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 8.dp)
-            .clip(RoundedCornerShape(8.dp)),
+            .clip(RoundedCornerShape(8.dp))
+            .let {
+                if (isEnabled) it.clickable {
+                    viewModel.updateUserTrip()
+                    onClick()
+                } else it
+            },
         colors = CardDefaults.cardColors(MainColor),
     ) {
         Column(
             modifier = Modifier
-                .clickable(
-                    onClick = onClick
-                )
                 .fillMaxWidth()
                 .padding(vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -364,9 +390,9 @@ fun AvailableBusesButton(
                 text = "Available Buses",
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.White,
-
-                )
+            )
         }
     }
 }
+
 // endregion

@@ -7,6 +7,8 @@ data class SignUpState(
     val phoneNumber: String = "",
     val idNumber: String = "",
     var addressMaps: String = "",
+    val dateTrip: String = "",
+    val timeTrip: String = "",
     var userPhoto: String = "",
     val role: String = "user",
     val betweenAddress: String = "",

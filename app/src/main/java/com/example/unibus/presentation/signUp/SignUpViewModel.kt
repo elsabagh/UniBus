@@ -7,18 +7,16 @@ import androidx.lifecycle.viewModelScope
 import com.example.unibus.R
 import com.example.unibus.data.models.User
 import com.example.unibus.domain.AccountRepository
-import com.example.unibus.utils.snackbar.SnackBarManager
 import com.example.unibus.utils.isEmailValid
 import com.example.unibus.utils.isPasswordValid
 import com.example.unibus.utils.passwordMatches
+import com.example.unibus.utils.snackbar.SnackBarManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.text.contains
-import kotlin.text.isEmpty
 
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
@@ -88,6 +86,9 @@ class SignUpViewModel @Inject constructor(
                     email = state.email,
                     phoneNumber = state.phoneNumber,
                     idNumber = state.idNumber,
+                    addressMaps = state.addressMaps,
+                    timeTrip = state.timeTrip,
+                    dateTrip = state.dateTrip,
                     role = "user",
                 )
 

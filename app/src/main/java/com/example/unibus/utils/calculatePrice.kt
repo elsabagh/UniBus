@@ -1,7 +1,7 @@
 package com.example.unibus.utils
 
 
-fun calculatePrice(distanceInMeters: Int): String {
+fun calculatePrice(distanceInMeters: Double): Double {
     val priceInKuwaitiDinars = (distanceInMeters / 100.0) * 0.1
 
     val finalPrice = when {
@@ -10,5 +10,9 @@ fun calculatePrice(distanceInMeters: Int): String {
         else -> priceInKuwaitiDinars
     }
 
-    return "%.2f".format(finalPrice)
+    return finalPrice
+}
+
+fun formatToTwoDecimalPlaces(value: Double): String {
+    return String.format("%.2f", value)  // التقريب إلى خانتين عشريتين
 }

@@ -28,6 +28,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -63,6 +64,10 @@ fun UserHomeScreen(
     val user by userHomeViewModel.user.collectAsState()
     val bookedBus by userHomeViewModel.bookedBus.collectAsState()
 
+    LaunchedEffect(Unit) {
+        userHomeViewModel.loadCurrentUser()
+        userHomeViewModel.loadBookedBusForUser()
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()

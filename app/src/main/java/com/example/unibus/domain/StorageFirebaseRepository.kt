@@ -1,6 +1,8 @@
 package com.example.unibus.domain
 
+import com.example.unibus.data.models.Notification
 import com.example.unibus.data.models.User
+import com.example.unibus.data.models.UserWithDocId
 import kotlinx.coroutines.flow.Flow
 
 interface StorageFirebaseRepository {
@@ -18,6 +20,10 @@ interface StorageFirebaseRepository {
     suspend fun createBookBusRequest(user: User)
 
     suspend fun getBookingsForTrip(tripNo: String, status: String): List<User>
+
+    suspend fun createUserNotification(notification: Notification)
+
+    suspend fun getBookingsForTripNot(tripNo: String, status: String): List<UserWithDocId>
 
     suspend fun approveBooking(userId: String)
 

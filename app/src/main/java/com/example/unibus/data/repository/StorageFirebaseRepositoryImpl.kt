@@ -2,7 +2,9 @@ package com.example.unibus.data.repository
 
 
 import android.util.Log
+import com.example.unibus.data.models.Notification
 import com.example.unibus.data.models.User
+import com.example.unibus.data.models.UserWithDocId
 import com.example.unibus.domain.StorageFirebaseRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -148,6 +150,52 @@ class StorageFirebaseRepositoryImpl @Inject constructor(
             emptyList()
         }
     }
+
+    override suspend fun getBookingsForTripNot(tripNo: String, status: String): List<UserWithDocId> {
+        return try {
+            val snapshot = FirebaseFirestore.getInstance()
+                .collection("bookedBus")
+                .whereEqualTo("tripNo", tripNo)
+                .whereEqualTo("statusBook", status)
+                .get()
+                .await()
+
+            snapshot.documents.mapNotNull { doc ->
+                val user = doc.toObject(User::class.java)
+                user?.let {
+                    UserWithDocId(it, doc.id)
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("FirebaseRepo", "Error fetching bookings", e)
+            emptyList()
+        }
+    }
+
+
+    override suspend fun createUserNotification(notification: Notification) {
+        try {
+            val notificationData = mapOf(
+                "title" to notification.title,
+                "message" to notification.message,
+                "date" to notification.date,
+                "time" to notification.time,
+                "userId" to notification.userId,
+                "userName" to notification.userName,
+                "nameDriver" to notification.nameDriver,
+                "notificationType" to notification.notificationType,
+                "addressMaps" to notification.addressMaps,
+            )
+            FirebaseFirestore.getInstance()
+                .collection("notification")
+                .add(notificationData)
+                .await()
+            Log.d("NotificationRepo", "Notification created successfully.")
+        } catch (e: Exception) {
+            Log.e("NotificationRepo", "Error creating notification: ${e.message}")
+        }
+    }
+
 
     override suspend fun approveBooking(userId: String) {
         try {

@@ -27,3 +27,8 @@ data class User(
     val dateTrip: String = "",
     val timeTrip: String = "",
 )
+
+data class UserWithDocId(
+    val user: User,
+    val documentId: String
+)

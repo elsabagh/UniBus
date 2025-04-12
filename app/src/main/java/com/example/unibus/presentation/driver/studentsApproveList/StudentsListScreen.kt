@@ -2,6 +2,7 @@ package com.example.unibus.presentation.driver.studentsApproveList
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,6 +49,7 @@ fun StudentsListScreen(
 ) {
     val viewModel: StudentsListViewModel = hiltViewModel()
     val studentsState = viewModel.studentsState.collectAsState()
+    var selectedUser by remember { mutableStateOf<User?>(null) }
 
     Scaffold(
         topBar = { TopAppBar("Students", navController) },
@@ -58,20 +64,29 @@ fun StudentsListScreen(
                 itemsIndexed(studentsState.value) { _, user ->
                     AccountItem(
                         account = user,
+                        onClick = { selectedUser = user }
                     )
                 }
             }
         }
     )
+    selectedUser?.let { user ->
+        UserDetailsDialog(
+            user = user,
+            onDismiss = { selectedUser = null }
+        )
+    }
 }
 
 @Composable
 fun AccountItem(
-    account: User
+    account: User,
+    onClick: (User) -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable { onClick(account) }
     ) {
         Row(
             modifier = Modifier
@@ -86,7 +101,6 @@ fun AccountItem(
                 modifier = Modifier
                     .size(60.dp)
                     .clip(CircleShape)
-
             ) {
                 Image(
                     painter = rememberImagePainter(account.userPhoto),
@@ -98,7 +112,6 @@ fun AccountItem(
                 )
             }
             Column(
-                modifier = Modifier,
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -108,9 +121,7 @@ fun AccountItem(
                     color = Color.Black,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
-
                 )
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(2.dp),
@@ -129,7 +140,6 @@ fun AccountItem(
                         color = MainColor
                     )
                 }
-
             }
         }
     }

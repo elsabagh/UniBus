@@ -47,7 +47,9 @@ import coil.compose.AsyncImage
 import coil.compose.rememberImagePainter
 import com.example.unibus.R
 import com.example.unibus.data.models.User
+import com.example.unibus.navigation.AppDestination
 import com.example.unibus.presentation.common.TopAppBar
+import com.example.unibus.presentation.signUp.components.VerifyDialog
 import com.example.unibus.ui.theme.MainColor
 import com.example.unibus.ui.theme.colorCardAvailableDriver
 import com.example.unibus.ui.theme.colorCardGreen
@@ -71,6 +73,7 @@ fun AvailableBuses(
     val selectedBus = viewModel.selectedBus.collectAsState().value
     var selectedPrice by remember { mutableStateOf("") }  // لحفظ السعر
     val driversWithDistance = viewModel.driversWithDistance.collectAsState().value
+    var showDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(true) {
         viewModel.getAvailableBuses()
@@ -115,12 +118,32 @@ fun AvailableBuses(
                 BookedButton(
                     viewModel = viewModel,
                     user = selectedBus ?: User(),
-                    price = selectedPrice
+                    price = selectedPrice,
+                    onConfirm = {
+                        showDialog = true // عرض الـ Dialog عند الضغط على "Join"
+                    }
 
                 )
             }
         },
     )
+    if (showDialog) {
+        VerifyDialog(
+            onConfirm = {
+                showDialog = false
+                navController.popBackStack(
+                    AppDestination.UserHomeDestination.route,
+                    inclusive = false
+                )
+                navController.navigate(AppDestination.UserHomeDestination.route) {
+                    popUpTo(AppDestination.UserHomeDestination.route) { inclusive = true }
+                }
+            },
+            imageResId = R.drawable.success_account,
+            message = "Your request to join the trip has been " + "sent. Please wait for the driver's approval",
+            buttonText = "Home"
+        )
+    }
 }
 
 @Composable
@@ -128,12 +151,14 @@ fun BookedButton(
     viewModel: AvailableBusesViewModel,
     user: User,
     price: String,
+    onConfirm: () -> Unit
 ) {
     val context = LocalContext.current
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
     var currentLocation by remember { mutableStateOf<Pair<Double, Double>?>(null) }
     var currentTime by remember { mutableStateOf<String>("") }
+    val isBusSelected = user.tripNo.isNotEmpty() && price.isNotEmpty()
 
     Card(
         modifier = Modifier
@@ -146,26 +171,29 @@ fun BookedButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable(
+                    enabled = isBusSelected,
                     onClick = {
-                        val isGpsEnabled = checkIfGpsEnabled(context)
-                        if (!isGpsEnabled) {
-                            Log.e("LocationDebug", "GPS is disabled")
-                            SnackBarManager.showMessage(R.string.please_enable_gps)
-                        } else {
-                            fetchLocation(fusedLocationClient, context) { latitude, longitude ->
-                                currentLocation = Pair(latitude, longitude)
+                        if (isBusSelected) {
+                            val isGpsEnabled = checkIfGpsEnabled(context)
+                            if (!isGpsEnabled) {
+                                Log.e("LocationDebug", "GPS is disabled")
+                                SnackBarManager.showMessage(R.string.please_enable_gps)
+                            } else {
+                                fetchLocation(fusedLocationClient, context) { latitude, longitude ->
+                                    currentLocation = Pair(latitude, longitude)
 
-                                val currentDate = Date()
-                                val dateFormat =
-                                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-                                currentTime = dateFormat.format(currentDate)
+                                    val currentDate = Date()
+                                    val dateFormat =
+                                        SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                                    currentTime = dateFormat.format(currentDate)
 
-                                val updatedUser = user.copy(
-                                    addressMaps = "${currentLocation?.first},${currentLocation?.second}",
-                                    busPrice = price
-                                )
-
-                                viewModel.bookBus(updatedUser)
+                                    val updatedUser = user.copy(
+                                        addressMaps = "${currentLocation?.first},${currentLocation?.second}",
+                                        busPrice = price
+                                    )
+                                    onConfirm()
+                                    viewModel.bookBus(updatedUser)
+                                }
                             }
                         }
                     },
@@ -178,7 +206,7 @@ fun BookedButton(
             Text(
                 text = "Join",
                 style = MaterialTheme.typography.titleMedium,
-                color = Color.White,
+                color = if (isBusSelected) Color.White else Color.Gray,  // تغيير اللون بناءً على حالة الزر
             )
         }
     }

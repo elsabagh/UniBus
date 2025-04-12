@@ -32,13 +32,13 @@ class UserHomeViewModel @Inject constructor(
         loadBookedBusForUser()
     }
 
-    private fun loadCurrentUser() {
+    fun loadCurrentUser() {
         viewModelScope.launch {
             _user.value = accountRepository.getCurrentUser()
         }
     }
 
-    private fun loadBookedBusForUser() {
+    fun loadBookedBusForUser() {
         viewModelScope.launch {
             val userId = accountRepository.currentUserId
             userId?.let {

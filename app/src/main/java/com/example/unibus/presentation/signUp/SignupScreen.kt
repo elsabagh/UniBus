@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -50,9 +51,9 @@ import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.unibus.R
 import com.example.unibus.navigation.AppDestination
-import com.example.unibus.utils.snackbar.SnackBarManager
 import com.example.unibus.presentation.signUp.components.VerifyDialog
 import com.example.unibus.ui.theme.MainColor
+import com.example.unibus.utils.snackbar.SnackBarManager
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -89,13 +90,16 @@ fun SignupScreen(navController: NavController) {
                 navController.navigate(AppDestination.SignInDestination.route) {
                     popUpTo(AppDestination.SignUpDestination.route) { inclusive = true }
                 }
-            }
+            },
+            imageResId = R.drawable.success_account,
+            message = stringResource(R.string.your_account_has_been) + stringResource(R.string.successfully_created),
+            buttonText = stringResource(R.string.login_now)
         )
     }
 
     Scaffold(
         topBar = {
-            androidx.compose.material3.TopAppBar(
+            TopAppBar(
                 title = {
                     Text(
                         stringResource(R.string.sign_up),

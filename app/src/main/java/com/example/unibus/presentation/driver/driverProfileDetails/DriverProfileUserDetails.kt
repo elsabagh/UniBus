@@ -1,4 +1,4 @@
-package com.example.unibus.presentation.user.profile.profileDetails
+package com.example.unibus.presentation.driver.driverProfileDetails
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,7 +18,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -46,19 +45,20 @@ import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.unibus.data.models.User
 import com.example.unibus.navigation.AppDestination
+import com.example.unibus.presentation.user.profile.profileDetails.ProfileUserDetailsViewModel
 import com.example.unibus.ui.theme.MainColor
 import com.example.unibus.ui.theme.colorButtonRed
 import com.example.unibus.ui.theme.itemColorProfile
 
 @Composable
-fun ProfileUserDetails(
+fun DriverProfileUserDetails(
     navController: NavController
 ) {
     val viewModel: ProfileUserDetailsViewModel = hiltViewModel()
     val user by viewModel.user.collectAsState()
 
     Scaffold(
-        topBar = { ProfileDetailsTopAppBar(navController, user) },
+        topBar = { DriverProfileDetailsTopAppBar(navController, user) },
         content = { paddingValues ->
             Row(
                 modifier = Modifier
@@ -202,7 +202,7 @@ fun LogoutButton(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileDetailsTopAppBar(navController: NavController, user: User?) {
+fun DriverProfileDetailsTopAppBar(navController: NavController, user: User?) {
     TopAppBar(
         title = {
             Text(
@@ -214,17 +214,6 @@ fun ProfileDetailsTopAppBar(navController: NavController, user: User?) {
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(
                     Icons.Default.ArrowBack, contentDescription = "Back",
-                    tint = Color.White
-                )
-            }
-        },
-        actions = {
-            IconButton(onClick = {
-                val userId = user?.userId
-                navController.navigate("Edit_Profile/${userId}")
-            }) {
-                Icon(
-                    Icons.Default.Edit, contentDescription = "Edit Profile",
                     tint = Color.White
                 )
             }

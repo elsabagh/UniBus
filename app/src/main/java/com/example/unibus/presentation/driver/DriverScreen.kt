@@ -107,7 +107,7 @@ fun DriverScreen(
                     .background(ColorCardIcon)
             ) {
                 IconButton(onClick = {
-                    navController.navigate(AppDestination.ProfileUserDestination.route)
+                    navController.navigate(AppDestination.ProfileDriverDestination.route)
                 }) {
                     Icon(
                         imageVector = Icons.Default.Person,

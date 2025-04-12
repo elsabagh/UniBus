@@ -71,9 +71,10 @@ fun AvailableBuses(
     val viewModel: AvailableBusesViewModel = hiltViewModel()
     val driversList = viewModel.drivers.collectAsState().value
     val selectedBus = viewModel.selectedBus.collectAsState().value
-    var selectedPrice by remember { mutableStateOf("") }  // لحفظ السعر
+    var selectedPrice by remember { mutableStateOf("") }
     val driversWithDistance = viewModel.driversWithDistance.collectAsState().value
     var showDialog by remember { mutableStateOf(false) }
+    val userBetweenAddress by viewModel.userBetweenAddress.collectAsState()
 
     LaunchedEffect(true) {
         viewModel.getAvailableBuses()
@@ -105,13 +106,15 @@ fun AvailableBuses(
 
                         BusCard(
                             driver = driver,
-                            distanceInMeters = distance,
+                            distanceInMeters = distance,  // للمسافة والعرض فقط
+                            userBetweenAddress = userBetweenAddress, // لحساب السعر فقط
                             isSelected = driver == selectedBus,
                             onBusSelected = { selectedDriver, price ->
                                 viewModel.selectBus(selectedDriver)
                                 selectedPrice = price
                             }
                         )
+
                     }
                 }
 
@@ -206,7 +209,7 @@ fun BookedButton(
             Text(
                 text = "Join",
                 style = MaterialTheme.typography.titleMedium,
-                color = if (isBusSelected) Color.White else Color.Gray,  // تغيير اللون بناءً على حالة الزر
+                color = if (isBusSelected) Color.White else Color.Gray,
             )
         }
     }
@@ -216,12 +219,12 @@ fun BookedButton(
 fun BusCard(
     driver: User,
     distanceInMeters: Double,
+    userBetweenAddress: Double,
     isSelected: Boolean,
     onBusSelected: (User, String) -> Unit
 ) {
-
     val formattedDistance = formatToTwoDecimalPlaces(distanceInMeters)
-    val price = calculatePrice(distanceInMeters)
+    val price = calculatePrice(userBetweenAddress)
     val formattedPrice = formatToTwoDecimalPlaces(price.toDouble())
 
     Card(
@@ -230,7 +233,7 @@ fun BusCard(
             .padding(vertical = 8.dp)
             .border(1.dp, if (isSelected) MainColor else Color.Gray, RoundedCornerShape(12.dp))
             .clickable {
-                onBusSelected(driver, formattedPrice)  // تمرير الأتوبيس المختار والسعر
+                onBusSelected(driver, formattedPrice)
             }
     ) {
         Column(
@@ -418,7 +421,8 @@ fun BusCardPreview() {
         driver = driver,
         onBusSelected = { _, _ -> },
         isSelected = false,
-        distanceInMeters = 44.4
+        distanceInMeters = 44.4,
+        userBetweenAddress = 1234.0
     )
 }
 

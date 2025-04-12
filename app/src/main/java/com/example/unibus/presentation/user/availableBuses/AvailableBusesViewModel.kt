@@ -34,12 +34,17 @@ class AvailableBusesViewModel @Inject constructor(
     private val _driversWithDistance = MutableStateFlow<List<Pair<User, Double>>>(emptyList())
     val driversWithDistance: StateFlow<List<Pair<User, Double>>> = _driversWithDistance.asStateFlow()
 
+    private val _userBetweenAddress = MutableStateFlow(0.0)
+    val userBetweenAddress: StateFlow<Double> = _userBetweenAddress.asStateFlow()
+
     fun getAvailableBuses() {
         viewModelScope.launch {
             _drivers.value = storageFirebaseRepository.getAvailableBuses()
 
             val currentUser = accountRepository.getCurrentUser()
             currentUser?.let {
+                _userBetweenAddress.value = it.betweenAddress.toDoubleOrNull() ?: 0.0
+
                 val driversWithDistance = mutableListOf<Pair<User, Double>>()
 
                 _drivers.value.forEach { driver ->
@@ -47,11 +52,11 @@ class AvailableBusesViewModel @Inject constructor(
                     driversWithDistance.add(Pair(driver, distance))
                 }
 
-                val sortedDrivers = driversWithDistance.sortedBy { it.second }
-                _driversWithDistance.value = sortedDrivers
+                _driversWithDistance.value = driversWithDistance.sortedBy { it.second }
             }
         }
     }
+
 
     private suspend fun getDistance(start: String, end: String): Double {
         val apiKey = "d5162feb-126a-4fa4-9aef-6843749d215f"
@@ -82,6 +87,9 @@ class AvailableBusesViewModel @Inject constructor(
             _selectedBus.value?.let { bus ->
                 val currentUser = accountRepository.getCurrentUser()
                 currentUser?.let {
+                    val fixedUserAddress = "30.026549, 31.211378"
+                    val distance = getDistance(fixedUserAddress, bus.addressMaps)
+
                     storageFirebaseRepository.createBookBusRequest(
                         currentUser.copy(
                             driverBusId = bus.userId,
@@ -89,13 +97,14 @@ class AvailableBusesViewModel @Inject constructor(
                             tripNo = bus.tripNo,
                             statusBook = "processing",
                             addressMaps = user.addressMaps,
-                            busPrice = user.busPrice
-
+                            busPrice = user.busPrice,
+                            betweenAddress = "$distance m"
                         )
                     )
                 }
             }
         }
     }
+
 
 }

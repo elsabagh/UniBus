@@ -74,6 +74,7 @@ class StorageFirebaseRepositoryImpl @Inject constructor(
                     "addressMaps" to updatedUser.addressMaps,
                     "dateTrip" to updatedUser.dateTrip,
                     "timeTrip" to updatedUser.timeTrip,
+                    "betweenAddress" to updatedUser.betweenAddress,
                 )
             ).await()
         } catch (e: Exception) {

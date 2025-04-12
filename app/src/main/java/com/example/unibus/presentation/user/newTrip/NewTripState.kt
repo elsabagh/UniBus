@@ -8,6 +8,7 @@ data class NewTripState(
     val tripType: String = "",
     val tripName: String = "",
     val tripDescription: String = "",
+    val betweenAddress: String = "",
     val latitude: String = "",
     val longitude: String = "",
     val isLoading: Boolean = false,

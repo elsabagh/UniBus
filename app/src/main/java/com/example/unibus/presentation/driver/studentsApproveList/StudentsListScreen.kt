@@ -73,7 +73,8 @@ fun StudentsListScreen(
     selectedUser?.let { user ->
         UserDetailsDialog(
             user = user,
-            onDismiss = { selectedUser = null }
+            onDismiss = { selectedUser = null },
+            navController = navController
         )
     }
 }

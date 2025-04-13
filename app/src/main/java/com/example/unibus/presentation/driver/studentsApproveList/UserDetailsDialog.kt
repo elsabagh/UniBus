@@ -1,8 +1,7 @@
 package com.example.unibus.presentation.driver.studentsApproveList
 
 
-import android.content.Intent
-import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -35,18 +34,28 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.unibus.data.models.User
+import com.example.unibus.navigation.AppDestination
 import com.example.unibus.ui.theme.MainColor
 import com.example.unibus.ui.theme.UniBusTheme
 import com.example.unibus.ui.theme.itemColorProfile
+import com.google.android.gms.maps.model.LatLng
 
 
 @Composable
 fun UserDetailsDialog(
     user: User,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    navController: NavController
 ) {
+    // تقسيم addressMaps إلى خط العرض وخط الطول
+    val coordinates = user.addressMaps.split(",")
+    val lat = coordinates[0].toDouble()  // استخراج خط العرض
+    val lng = coordinates[1].toDouble()  // استخراج خط الطول
+    val userLocation = LatLng(lat, lng)  // إنشاء متغير LatLng من الإحداثيات
+    Log.d("UserLocationScreen", "User Location: $lat")
     AlertDialog(
         containerColor = MaterialTheme.colorScheme.background,
         onDismissRequest = { onDismiss() },
@@ -55,7 +64,6 @@ fun UserDetailsDialog(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
-
             ) {
                 Box(
                     contentAlignment = Alignment.Center,
@@ -103,10 +111,15 @@ fun UserDetailsDialog(
                     .padding(top = 8.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .clickable(
-                        onClick = { onDismiss() }),
+                        onClick = {
+                            // تمرير الإحداثيات إلى UserLocationScreen عند الضغط
+                            navController.navigate(
+                                AppDestination.UserLocationDestination.route +
+                                        "?lat=${lat}&lng=${lng}"
+                            )
+                        }),
                 colors = CardDefaults.cardColors(MainColor),
-
-                ) {
+            ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -120,6 +133,8 @@ fun UserDetailsDialog(
         }
     )
 }
+
+
 
 @Composable
 fun ProfileDetailCard(label: String, value: String) {
@@ -150,7 +165,7 @@ fun ProfileDetailCard(label: String, value: String) {
                     .padding(8.dp)
                     .padding(vertical = 4.dp)
                     .align(Alignment.Start),
-                color = MaterialTheme.colorScheme.background
+                color = Color.Black
             )
         }
         Spacer(modifier = Modifier.height(8.dp))
@@ -171,13 +186,7 @@ fun LocationText(location: String) {
         text = "Location",
         style = MaterialTheme.typography.bodyMedium,
         modifier = Modifier
-            .padding(8.dp)
-            .clickable {
-                val uri = "geo:$locationText?q=$locationText"
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
-                intent.setPackage("com.google.android.apps.maps")
-                context.startActivity(intent)
-            },
+            .padding(8.dp),
         color = Color.White
 
     )
@@ -197,7 +206,8 @@ fun PreviewUserDetailsDialog() {
                 addressMaps = "37.7749,-122.4194",
                 userPhoto = ""
             ),
-            onDismiss = {}
+            onDismiss = {},
+            navController = TODO()
         )
     }
 }

@@ -2,8 +2,10 @@ package com.example.unibus.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.unibus.ContainerAppState
 import com.example.unibus.SplashScreen
 import com.example.unibus.navigation.AppDestination.SignInDestination
@@ -13,6 +15,7 @@ import com.example.unibus.presentation.driver.driverProfileDetails.DriverProfile
 import com.example.unibus.presentation.driver.notification.NotificationDriverScreen
 import com.example.unibus.presentation.driver.studentsApproveList.StudentsListScreen
 import com.example.unibus.presentation.driver.uniLocation.UniLocationScreen
+import com.example.unibus.presentation.driver.userLocation.UserLocationScreen
 import com.example.unibus.presentation.signIn.SignInScreen
 import com.example.unibus.presentation.signUp.SignupScreen
 import com.example.unibus.presentation.user.UserHomeScreen
@@ -91,6 +94,22 @@ fun NavGraph(
                 navController = appState.navController,
             )
         }
+        composable(
+            route = "${AppDestination.UserLocationDestination.route}?lat={lat}&lng={lng}",
+            arguments = listOf(
+                navArgument("lat") { type = NavType.StringType },
+                navArgument("lng") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val lat = backStackEntry.arguments?.getString("lat")?.toDoubleOrNull() ?: 0.0
+            val lng = backStackEntry.arguments?.getString("lng")?.toDoubleOrNull() ?: 0.0
+            UserLocationScreen(
+                navController = appState.navController,
+                lat = lat,
+                lng = lng
+            )
+        }
+
         composable(AppDestination.NotificationDriverDestination.route) {
             NotificationDriverScreen(
                 navController = appState.navController,

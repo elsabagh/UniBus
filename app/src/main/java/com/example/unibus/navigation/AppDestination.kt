@@ -46,6 +46,10 @@ interface AppDestination {
         override val route = "UniLocationDestination"
     }
 
+    object UserLocationDestination : AppDestination {
+        override val route = "UserLocation"
+    }
+
     object ProfileDriverDestination : AppDestination {
         override val route = "Profile_Driver"
     }

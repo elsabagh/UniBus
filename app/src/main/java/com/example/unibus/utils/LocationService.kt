@@ -29,7 +29,6 @@ fun fetchLocation(
     val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             locationResult.lastLocation?.let { location ->
-                // إرجاع الإحداثيات (Lat, Long) بعد الحصول عليها
                 onLocationFetched(location.latitude, location.longitude)
                 fusedLocationClient.removeLocationUpdates(this) // Stop updates after getting location
             }

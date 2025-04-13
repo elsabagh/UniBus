@@ -77,7 +77,7 @@ fun NotificationDriverScreen(
                             notificationViewModel.sendCustomNotificationToUser(
                                 user = userWithDocId.user,
                                 title = "Booking Rejected",
-                                message = "Driver ${userWithDocId.user.driverBusName} has approved the request to join the trip",
+                                message = "Driver ${userWithDocId.user.driverBusName} has declined the request to join the trip",
                                 type = "rejected"
                             )
                         }

@@ -50,7 +50,7 @@ class SignInViewModel @Inject constructor(
                     _userRole.value = storageFirebaseRepository.getUserRole(email)
                 }
             }
-            _isAccountReady.value = true // ✅ يتم تحديث الحالة بعد استرجاع البيانات
+            _isAccountReady.value = true
         }
     }
 
@@ -95,12 +95,10 @@ class SignInViewModel @Inject constructor(
     }
 
     private suspend fun validateUserRoleAndStatus(email: String, selectedRole: String) {
-        // جلب الدور من Firebase
         val role = storageFirebaseRepository.getUserRole(email)
 
         _userRole.value = role
 
-        // التحقق من الدور وحالة الحساب
         if (role == selectedRole) {
             _isSignInSucceeded.value = true
 

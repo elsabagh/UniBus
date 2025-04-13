@@ -23,6 +23,7 @@
     <string name="sign_in">Sign in</string>
     <string name="login_details">Enter your login details</string>
     <string name="empty_password_error">Password cannot be empty.</string>
+    <string name="valid_password_error">The password must contain: [a–z] [A-Z] [0-9] And not less than 6.</string>
 
     <!-- SignUpScreen -->
     <string name="sign_up">Sign up</string>
@@ -45,7 +46,7 @@
     <string name="don_t_have_an_account_sign_up">Don\'t have an account?</string>
     <string name="already_have_an_account_sign_in">Already have an account?</string>
     <string name="invalid_password_error">The password is invalid or the user does not have a password.</string>
-    <string name="authentication_failed">Authentication failed. Please try again.</string>
+    <string name="authentication_failed">Incorrect email or password.</string>
     <string name="email_already_in_use">The email address is already in use by another account.</string>
     <string name="account_creation_failed">Account creation failed</string>
     <string name="create_your_account">Create Your Account</string>

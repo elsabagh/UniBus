@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,11 +50,13 @@ import com.example.unibus.R
 import com.example.unibus.data.models.User
 import com.example.unibus.navigation.AppDestination
 import com.example.unibus.presentation.common.AppHeader
+import com.example.unibus.presentation.driver.notification.NotificationDriverViewModel
 import com.example.unibus.ui.theme.ColorCardIcon
 import com.example.unibus.ui.theme.MainColor
 import com.example.unibus.ui.theme.ProfileColorCard
 import com.example.unibus.ui.theme.colorCardGreen
 import com.example.unibus.ui.theme.colorCardRed
+import kotlinx.coroutines.delay
 
 @Composable
 fun DriverScreen(
@@ -63,10 +66,24 @@ fun DriverScreen(
     val viewModel: DriverViewModel = hiltViewModel()
     val driver by viewModel.driver.collectAsState()
 
+    val context = LocalContext.current
+    val notificationViewModel: NotificationDriverViewModel = hiltViewModel()
+    val hasNotifications by notificationViewModel.hasNotifications.collectAsState()
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            notificationViewModel.getTripNo { tripNo ->
+                if (tripNo.isNotBlank()) {
+                    notificationViewModel.loadNotificationsForTrip(tripNo, "processing", context)
+                }
+            }
+            delay(1000)
+        }
+    }
+
     LaunchedEffect(Unit) {
         viewModel.loadCurrentUser()
     }
-
 
 
     Column {
@@ -87,6 +104,7 @@ fun DriverScreen(
                 IconButton(
                     onClick = {
                         navController.navigate(AppDestination.NotificationDriverDestination.route)
+                        notificationViewModel.markNotificationsAsRead()
                     },
                 ) {
                     Icon(
@@ -95,6 +113,14 @@ fun DriverScreen(
                         tint = Color.White,
                         modifier = Modifier
                             .size(28.dp)
+                    )
+                }
+                if (hasNotifications) {
+                    Box(
+                        modifier = Modifier.padding(8.dp)
+                            .size(10.dp)
+                            .align(Alignment.TopEnd)
+                            .background(Color.Red, shape = CircleShape)
                     )
                 }
             }

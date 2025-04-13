@@ -1,6 +1,5 @@
 package com.example.unibus.presentation.driver.uniLocation
 
-
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -34,6 +33,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.example.unibus.presentation.common.TopAppBar
 import com.example.unibus.ui.theme.MainColor
+import com.example.unibus.utils.checkIfGpsEnabled
 import com.example.unibus.utils.fetchLocation
 import com.example.unibus.utils.isLocationPermissionGranted
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -51,6 +51,7 @@ fun UniLocationScreen(navController: NavController) {
     val mapView = rememberMapViewWithLifecycle()
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
     var googleMap by remember { mutableStateOf<GoogleMap?>(null) }
+    var isMapReady by remember { mutableStateOf(false) }
     var showArrivalButton by remember { mutableStateOf(false) }
 
     val fixedLatLng = LatLng(30.247764, 31.202864)
@@ -62,36 +63,38 @@ fun UniLocationScreen(navController: NavController) {
             Box(modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()) {
+
                 MapViewContent(
                     mapView = mapView,
                     fixedLatLng = fixedLatLng,
                     fusedLocationClient = fusedLocationClient,
                     context = context,
-                    googleMap = googleMap,
                     radius = radius,
-                    showArrivalButton = showArrivalButton,
                     onLocationFetched = { distance ->
                         showArrivalButton = distance <= radius
+                    },
+                    onMapReady = { map ->
+                        googleMap = map
+                        isMapReady = true
                     }
                 )
 
                 if (showArrivalButton) {
-                    ArrivalButton(context,
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                    )
+                    ArrivalButton(context, modifier = Modifier.align(Alignment.BottomCenter))
                 }
 
-                LocationFAB(
-                    fusedLocationClient,
-                    context,
-                    googleMap,
-                    fixedLatLng,
-                    radius,
-                    modifier = Modifier
-                        .align(Alignment.BottomStart),
-                ) { distance ->
-                    showArrivalButton = distance <= radius
+                if (isMapReady) {
+                    LocationFAB(
+                        fusedLocationClient = fusedLocationClient,
+                        context = context,
+                        googleMap = googleMap,
+                        fixedLatLng = fixedLatLng,
+                        radius = radius,
+                        modifier = Modifier.align(Alignment.BottomStart),
+                        onLocationFetched = { distance ->
+                            showArrivalButton = distance <= radius
+                        }
+                    )
                 }
             }
         }
@@ -104,21 +107,19 @@ fun MapViewContent(
     fixedLatLng: LatLng,
     fusedLocationClient: FusedLocationProviderClient,
     context: Context,
-    googleMap: GoogleMap?,
     radius: Float,
-    showArrivalButton: Boolean,
-    onLocationFetched: (distance: Float) -> Unit
+    onLocationFetched: (distance: Float) -> Unit,
+    onMapReady: (GoogleMap) -> Unit
 ) {
-    var googleMap by remember { mutableStateOf<GoogleMap?>(null) }
-
     AndroidView(
         factory = { mapView },
         modifier = Modifier.fillMaxSize(),
         update = { mapView ->
             mapView.getMapAsync { map ->
-                googleMap = map
                 map.uiSettings.isZoomControlsEnabled = true
                 map.addMarker(MarkerOptions().position(fixedLatLng).title("University"))
+                onMapReady(map)
+
                 if (isLocationPermissionGranted(context)) {
                     fetchLocation(fusedLocationClient, context) { lat, lng ->
                         val currentLatLng = LatLng(lat, lng)
@@ -195,33 +196,44 @@ fun LocationFAB(
 ) {
     FloatingActionButton(
         onClick = {
-            if (isLocationPermissionGranted(context)) {
-                fetchLocation(fusedLocationClient, context) { lat, lng ->
-                    val currentLatLng = LatLng(lat, lng)
-                    googleMap?.apply {
-                        clear()
-                        addMarker(MarkerOptions().position(fixedLatLng).title("الجامعة"))
-                        addCircle(
-                            CircleOptions()
-                                .center(currentLatLng)
-                                .radius(radius.toDouble())
-                                .strokeColor(0xFF0000FF.toInt())
-                                .fillColor(0x440000FF)
-                                .strokeWidth(4f)
-                        )
-                        animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 16f))
-                        val location = android.location.Location("")
-                        location.latitude = lat
-                        location.longitude = lng
-                        val fixedLocation = android.location.Location("")
-                        fixedLocation.latitude = fixedLatLng.latitude
-                        fixedLocation.longitude = fixedLatLng.longitude
-                        val distance = location.distanceTo(fixedLocation)
-                        onLocationFetched(distance)
+            when {
+                !isLocationPermissionGranted(context) -> {
+                    // Handle case where location permissions are not granted
+                    Toast.makeText(context, "Allow location permission first", Toast.LENGTH_SHORT).show()
+                }
+                !checkIfGpsEnabled(context) -> {
+                    // Handle case where GPS is not enabled
+                    Toast.makeText(context, "Enable GPS to fetch your location", Toast.LENGTH_SHORT).show()
+                }
+                else -> {
+                    // Fetch location if both GPS is enabled and permissions are granted
+                    fetchLocation(fusedLocationClient, context) { lat, lng ->
+                        val currentLatLng = LatLng(lat, lng)
+                        googleMap?.apply {
+                            clear()
+                            addMarker(MarkerOptions().position(fixedLatLng).title("University"))
+                            addCircle(
+                                CircleOptions()
+                                    .center(currentLatLng)
+                                    .radius(radius.toDouble())
+                                    .strokeColor(0xFF0000FF.toInt())
+                                    .fillColor(0x440000FF)
+                                    .strokeWidth(4f)
+                            )
+                            animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 16f))
+                            val location = android.location.Location("").apply {
+                                latitude = lat
+                                longitude = lng
+                            }
+                            val fixedLocation = android.location.Location("").apply {
+                                latitude = fixedLatLng.latitude
+                                longitude = fixedLatLng.longitude
+                            }
+                            val distance = location.distanceTo(fixedLocation)
+                            onLocationFetched(distance)
+                        }
                     }
                 }
-            } else {
-                Toast.makeText(context, "اسمح بإذن اللوكيشن الأول", Toast.LENGTH_SHORT).show()
             }
         },
         modifier = modifier

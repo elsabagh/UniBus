@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -49,12 +50,14 @@ import com.example.unibus.R
 import com.example.unibus.data.models.User
 import com.example.unibus.navigation.AppDestination
 import com.example.unibus.presentation.common.AppHeader
+import com.example.unibus.presentation.user.notifications.UserNotificationViewModel
 import com.example.unibus.ui.theme.ColorCardIcon
 import com.example.unibus.ui.theme.MainColor
 import com.example.unibus.ui.theme.ProfileColorCard
 import com.example.unibus.ui.theme.colorCardAvailableDriver
 import com.example.unibus.ui.theme.colorCardGreen
 import com.example.unibus.ui.theme.colorCardRed
+import kotlinx.coroutines.delay
 
 @Composable
 fun UserHomeScreen(
@@ -63,6 +66,18 @@ fun UserHomeScreen(
     val userHomeViewModel: UserHomeViewModel = hiltViewModel()
     val user by userHomeViewModel.user.collectAsState()
     val bookedBus by userHomeViewModel.bookedBus.collectAsState()
+
+    val context = LocalContext.current
+    val notificationViewModel: UserNotificationViewModel = hiltViewModel()
+    val hasNotifications by notificationViewModel.hasNotifications.collectAsState()
+
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            notificationViewModel.loadNotifications(context)
+            delay(1000)
+        }
+    }
 
     LaunchedEffect(Unit) {
         userHomeViewModel.loadCurrentUser()
@@ -83,14 +98,23 @@ fun UserHomeScreen(
                 .background(ColorCardIcon)
         ) {
             IconButton(onClick = {
-
+                navController.navigate(AppDestination.NotificationUserDestination.route)
+                notificationViewModel.markNotificationsAsRead()
             }) {
                 Icon(
                     imageVector = Icons.Default.Notifications,
-                    contentDescription = "Profile",
+                    contentDescription = "Notifications",
                     tint = Color.White,
                     modifier = Modifier
                         .size(28.dp)
+                )
+            }
+            if (hasNotifications) {
+                Box(
+                    modifier = Modifier.padding(8.dp)
+                        .size(10.dp)
+                        .align(Alignment.TopEnd)
+                        .background(Color.Red, shape = CircleShape)
                 )
             }
         }

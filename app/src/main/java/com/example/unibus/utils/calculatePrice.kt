@@ -14,5 +14,5 @@ fun calculatePrice(distanceInMeters: Double): Double {
 }
 
 fun formatToTwoDecimalPlaces(value: Double): String {
-    return String.format("%.2f", value)  // التقريب إلى خانتين عشريتين
+    return String.format("%.2f", value)
 }

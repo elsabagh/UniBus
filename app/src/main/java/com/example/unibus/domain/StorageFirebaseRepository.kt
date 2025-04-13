@@ -1,6 +1,7 @@
 package com.example.unibus.domain
 
 import com.example.unibus.data.models.Notification
+import com.example.unibus.data.models.NotificationWithDocId
 import com.example.unibus.data.models.User
 import com.example.unibus.data.models.UserWithDocId
 import kotlinx.coroutines.flow.Flow
@@ -38,4 +39,6 @@ interface StorageFirebaseRepository {
     suspend fun getBookingsForUser(userId: String, status: String): List<User>
 
     suspend fun getBookedBusForUser(userId: String): User?
+
+    suspend fun getNotificationsForUser(userId: String): List<NotificationWithDocId>
 }

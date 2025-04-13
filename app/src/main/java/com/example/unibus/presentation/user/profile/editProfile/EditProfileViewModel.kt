@@ -169,7 +169,7 @@ class EditProfileViewModel @Inject constructor(
         viewModelScope.launch {
             _editUserState.value = _editUserState.value.copy(isLoading = true, error = null)
             try {
-                accountRepository.changePassword(newPassword)
+                accountRepository.changePassword(password, newPassword)
                 _editUserState.value = _editUserState.value.copy(isPasswordChanged = true)
                 SnackBarManager.showMessage(R.string.password_changed_successfully)
             } catch (e: Exception) {
@@ -180,5 +180,6 @@ class EditProfileViewModel @Inject constructor(
             }
         }
     }
+
 
 }

@@ -56,7 +56,6 @@ class SignUpViewModel @Inject constructor(
     fun createAccount(userPhotoUri: Uri?) {
         val state = _uiState.value
 
-        // التحقق من صحة المدخلات
         if (state.userName.isEmpty()) {
             SnackBarManager.showMessage(R.string.empty_name_error)
             return
@@ -67,8 +66,13 @@ class SignUpViewModel @Inject constructor(
             return
         }
 
-        if (!state.password.isPasswordValid()) {
+        if (state.password.isEmpty()) {
             SnackBarManager.showMessage(R.string.empty_password_error)
+            return
+        }
+
+        if (!state.password.isPasswordValid()) {
+            SnackBarManager.showMessage(R.string.password_error)
             return
         }
 
@@ -76,7 +80,6 @@ class SignUpViewModel @Inject constructor(
             SnackBarManager.showMessage(R.string.password_match_error)
             return
         }
-
         _uiState.value = _uiState.value.copy(isLoading = true)
 
         viewModelScope.launch {

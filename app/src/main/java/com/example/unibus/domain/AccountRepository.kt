@@ -27,7 +27,7 @@ interface AccountRepository {
 
     suspend fun getCurrentUser(): User?
 
-    suspend fun changePassword(newPassword: String)
+    suspend fun changePassword(oldPassword: String, newPassword: String)
 
     suspend fun linkAccount(email: String, password: String)
 

@@ -118,20 +118,24 @@ class AccountRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun changePassword(newPassword: String) {
+    override suspend fun changePassword(oldPassword: String, newPassword: String) {
         val user = firebaseAuth.currentUser
         if (user != null) {
             try {
+                val email = user.email ?: throw Exception("User email is null")
+
+                val credential = EmailAuthProvider.getCredential(email, oldPassword)
+                user.reauthenticate(credential).await()
+
                 user.updatePassword(newPassword).await()
             } catch (e: Exception) {
                 throw Exception("Failed to change password: ${e.message}", e)
-            } catch (e: IOException) {
-                throw IOException("Network error occurred during password change: ${e.message}", e)
             }
         } else {
             throw Exception("No authenticated user found")
         }
     }
+
 
     private suspend fun uploadImageToStorage(
         userId: String,

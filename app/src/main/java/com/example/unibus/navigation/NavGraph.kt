@@ -18,6 +18,7 @@ import com.example.unibus.presentation.signUp.SignupScreen
 import com.example.unibus.presentation.user.UserHomeScreen
 import com.example.unibus.presentation.user.availableBuses.AvailableBuses
 import com.example.unibus.presentation.user.newTrip.NewTripScreen
+import com.example.unibus.presentation.user.notifications.UserNotificationScreen
 import com.example.unibus.presentation.user.profile.editProfile.EditProfile
 import com.example.unibus.presentation.user.profile.profileDetails.ProfileUserDetails
 
@@ -106,6 +107,11 @@ fun NavGraph(
 
         composable(AppDestination.UserHomeDestination.route) {
             UserHomeScreen(
+                navController = appState.navController,
+            )
+        }
+        composable(AppDestination.NotificationUserDestination.route) {
+            UserNotificationScreen(
                 navController = appState.navController,
             )
         }

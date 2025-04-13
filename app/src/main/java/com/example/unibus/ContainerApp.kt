@@ -22,6 +22,7 @@ import com.example.unibus.ui.theme.UniBusTheme
 @Composable
 fun ContainerApp(
     modifier: Modifier = Modifier,
+    navigateTo: String? = null,
 ) {
     val appState = rememberAppState()
     val signInViewModel: SignInViewModel = hiltViewModel()

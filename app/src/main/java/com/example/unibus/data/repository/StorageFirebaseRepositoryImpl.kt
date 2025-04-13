@@ -3,6 +3,7 @@ package com.example.unibus.data.repository
 
 import android.util.Log
 import com.example.unibus.data.models.Notification
+import com.example.unibus.data.models.NotificationWithDocId
 import com.example.unibus.data.models.User
 import com.example.unibus.data.models.UserWithDocId
 import com.example.unibus.domain.StorageFirebaseRepository
@@ -186,6 +187,7 @@ class StorageFirebaseRepositoryImpl @Inject constructor(
                 "nameDriver" to notification.nameDriver,
                 "notificationType" to notification.notificationType,
                 "addressMaps" to notification.addressMaps,
+
             )
             FirebaseFirestore.getInstance()
                 .collection("notification")
@@ -326,6 +328,29 @@ class StorageFirebaseRepositoryImpl @Inject constructor(
             null
         }
     }
+
+    override suspend fun getNotificationsForUser(userId: String): List<NotificationWithDocId> {
+        return try {
+            val snapshot = fireStore.collection("notification")
+                .whereEqualTo("userId", userId)
+                .get()
+                .await()
+
+            // استخراج documentId مع الإشعار
+            snapshot.documents.mapNotNull { doc ->
+                val notification = doc.toObject(Notification::class.java)
+                notification?.let {
+                    // دمج الإشعار مع documentId
+                    NotificationWithDocId(it, doc.id)
+                }
+            }
+
+        } catch (e: Exception) {
+            Log.e("FirebaseRepo", "Error fetching notifications for user", e)
+            emptyList()
+        }
+    }
+
 
 
 }

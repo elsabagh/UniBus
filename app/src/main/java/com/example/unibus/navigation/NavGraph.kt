@@ -28,11 +28,13 @@ fun NavGraph(
     appState: ContainerAppState,
     userRole: String?,
     isAccountReady: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navigateTo: String // Add navigateTo parameter
+
 ) {
     NavHost(
         navController = appState.navController,
-        startDestination = "splash",
+        startDestination = if (navigateTo.isNotEmpty()) navigateTo else "splash", // Use navigateTo if provided
         modifier = modifier
     ) {
         composable(route = "splash") {

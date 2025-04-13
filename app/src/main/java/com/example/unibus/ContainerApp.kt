@@ -22,7 +22,7 @@ import com.example.unibus.ui.theme.UniBusTheme
 @Composable
 fun ContainerApp(
     modifier: Modifier = Modifier,
-    navigateTo: String? = null,
+    navigateTo: String // Add navigateTo parameter
 ) {
     val appState = rememberAppState()
     val signInViewModel: SignInViewModel = hiltViewModel()
@@ -34,7 +34,8 @@ fun ContainerApp(
             NavGraph(
                 appState = appState,
                 userRole = userRole,
-                isAccountReady = isAccountReady
+                isAccountReady = isAccountReady,
+                navigateTo = navigateTo // Pass navigateTo to the NavGraph
             )
 
             SnackbarHost(

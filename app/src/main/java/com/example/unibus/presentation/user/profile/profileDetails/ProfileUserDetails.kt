@@ -163,7 +163,7 @@ fun ProfileDetailCard(label: String, value: String) {
                     .background(itemColorProfile)
                     .padding(8.dp)
                     .align(Alignment.Start),
-                color = MaterialTheme.colorScheme.background
+                color = Color.Black
             )
         }
         Spacer(modifier = Modifier.height(8.dp))

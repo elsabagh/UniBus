@@ -11,6 +11,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.unibus.MainActivity
 import com.example.unibus.R
+import com.example.unibus.navigation.AppDestination
 
 object NotificationUtil {
     private const val CHANNEL_ID = "help_request_channel"
@@ -31,7 +32,10 @@ object NotificationUtil {
 
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            putExtra("navigateTo", "NotificationDriverScreen")
+            putExtra(
+                "navigateTo",
+                AppDestination.NotificationUserDestination.route
+            ) // Match navigation route
         }
 
         val pendingIntent = PendingIntent.getActivity(
@@ -52,6 +56,7 @@ object NotificationUtil {
         NotificationManagerCompat.from(context).notify(1, builder.build())
     }
 }
+
 
 object UserNotificationPrefs {
     private const val PREF_NAME = "user_notification_prefs"

@@ -37,15 +37,14 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        val navigateTo = intent.getStringExtra("navigateTo") ?: ""
-
+        val navigateTo = intent.getStringExtra("navigateTo") ?: "" // Extract navigateTo
 
         enableEdgeToEdge()
         setContent {
             Surface {
                 LocationPermissionHandler()
                 ContainerApp(
-                    navigateTo = navigateTo // 👈 هنمررها هنا بدل start destination
+                    navigateTo = navigateTo // Pass navigateTo to the ContainerApp
                 )
             }
         }

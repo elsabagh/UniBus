@@ -24,7 +24,11 @@ fun TopAppBar(label: String, navController: NavController) {
             )
         },
         navigationIcon = {
-            IconButton(onClick = { navController.popBackStack() }) {
+            IconButton(onClick = {
+                if (!navController.popBackStack()) {
+                    navController.navigate("splash") // Default fallback to a specific screen
+                }
+            }) {
                 Icon(
                     Icons.Default.ArrowBack, contentDescription = "Back",
                     tint = Color.White

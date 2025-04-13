@@ -1,5 +1,6 @@
 package com.example.unibus.presentation.driver
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.unibus.data.models.User
@@ -41,7 +42,7 @@ class DriverViewModel @Inject constructor(
 
                 loadCurrentUser()
             } catch (e: Exception) {
-                // تقدر تضيف log أو handle error
+                Log.e("DriverViewModel", "Failed to empty bus: ${e.message}")
             }
         }
     }

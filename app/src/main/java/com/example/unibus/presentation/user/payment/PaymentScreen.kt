@@ -27,6 +27,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -43,24 +44,35 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.unibus.R
+import com.example.unibus.presentation.common.TopAppBar
 import com.example.unibus.ui.theme.MainColor
 import com.example.unibus.ui.theme.UniBusTheme
 
 @Composable
-fun PaymentScreen() {
-    Column(
-        modifier = Modifier
-            .verticalScroll(rememberScrollState())
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        HeaderSection()
-        Spacer(modifier = Modifier.height(16.dp))
-        BankAndCardDetails()
-        Spacer(modifier = Modifier.height(16.dp))
-        ActionButtons()
-    }
+fun PaymentScreen(
+    navController: NavController
+) {
+    Scaffold(
+        topBar = { TopAppBar("Students", navController) },
+        content = { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                HeaderSection()
+                Spacer(modifier = Modifier.height(16.dp))
+                BankAndCardDetails()
+                Spacer(modifier = Modifier.height(16.dp))
+                ActionButtons()
+            }
+        }
+    )
 }
 
 @Composable
@@ -78,7 +90,7 @@ fun HeaderSection() {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.knet_logo), // ضع صورة KNET هنا
+                painter = painterResource(id = R.drawable.knet_logo),
                 contentDescription = "Knet Logo",
                 modifier = Modifier.size(100.dp)
             )
@@ -334,6 +346,8 @@ fun DropdownMenuField(
 @Composable
 fun PaymentScreenPreview() {
     UniBusTheme {
-        PaymentScreen()
+        PaymentScreen(
+            navController = rememberNavController()
+        )
     }
 }

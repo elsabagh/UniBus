@@ -56,4 +56,7 @@ interface AppDestination {
     object NotificationDriverDestination : AppDestination {
         override val route = "Notification_Driver"
     }
+    object PaymentDestination : AppDestination {
+        override val route = "Payment"
+    }
 }

@@ -12,6 +12,9 @@ import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 class StorageFirebaseRepositoryImpl @Inject constructor(
@@ -146,8 +149,10 @@ class StorageFirebaseRepositoryImpl @Inject constructor(
                 .get()
                 .await()
 
-            snapshot.documents.mapNotNull { it.toObject(User::class.java)?.copy(userId = it.id) }
-        } catch (e: Exception) {
+            snapshot.documents.mapNotNull { doc ->
+                val user = doc.toObject(User::class.java)
+                user?.copy(userId = user.userId)
+            }        } catch (e: Exception) {
             Log.e("FirebaseRepo", "Error fetching bookings", e)
             emptyList()
         }
@@ -252,6 +257,27 @@ class StorageFirebaseRepositoryImpl @Inject constructor(
                 .await()
 
             snapshot.documents.forEach { doc ->
+                // Extract user information from the document
+                val userId = doc.getString("userId") ?: return@forEach
+                val userName = doc.getString("userName") ?: "User"
+
+                // Create a notification for the user
+                val notification = Notification(
+                    title = "The bus has arrived",
+                    message = "The bus has arrived at the university, You can pay now.",
+                    date = getCurrentDate(), // Helper to fetch current date
+                    time = getCurrentTime(), // Helper to fetch current time
+                    userId = userId,
+                    userName = userName,
+                    nameDriver = "", // Optionally include the driver's name if available
+                    notificationType = "payment",
+                    addressMaps = doc.getString("addressMaps") ?: ""
+                )
+
+                // Send the notification
+                createUserNotification(notification)
+
+                // Delete the document
                 doc.reference.delete().await()
             }
 
@@ -260,6 +286,16 @@ class StorageFirebaseRepositoryImpl @Inject constructor(
             Log.e("FirebaseRepo", "Error clearing trip bookings", e)
             throw e
         }
+    }
+
+    fun getCurrentDate(): String {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return dateFormat.format(Date())
+    }
+
+    fun getCurrentTime(): String {
+        val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+        return timeFormat.format(Date())
     }
 
     override suspend fun resetDriverSeats(driverId: String) {

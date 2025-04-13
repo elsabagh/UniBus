@@ -55,7 +55,10 @@ fun UserDetailsDialog(
     val lat = coordinates[0].toDouble()  // استخراج خط العرض
     val lng = coordinates[1].toDouble()  // استخراج خط الطول
     val userLocation = LatLng(lat, lng)  // إنشاء متغير LatLng من الإحداثيات
+    val userId = user.userId // تحويل LatLng إلى سلسلة نصية
     Log.d("UserLocationScreen", "User Location: $lat")
+    Log.d("UserLocationScreen", "User Location: $lng")
+    Log.d("UserLocationScreen", "User ID: $userId")
     AlertDialog(
         containerColor = MaterialTheme.colorScheme.background,
         onDismissRequest = { onDismiss() },
@@ -111,12 +114,10 @@ fun UserDetailsDialog(
                     .padding(top = 8.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .clickable(
-                        onClick = {
-                            // تمرير الإحداثيات إلى UserLocationScreen عند الضغط
-                            navController.navigate(
-                                AppDestination.UserLocationDestination.route +
-                                        "?lat=${lat}&lng=${lng}"
-                            )
+                        onClick = {navController.navigate(
+                            AppDestination.UserLocationDestination.route +
+                                    "?lat=${lat}&lng=${lng}&userId=${user.userId}&userName=${user.userName}"
+                        )
                         }),
                 colors = CardDefaults.cardColors(MainColor),
             ) {

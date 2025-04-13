@@ -22,6 +22,7 @@ import com.example.unibus.presentation.user.UserHomeScreen
 import com.example.unibus.presentation.user.availableBuses.AvailableBuses
 import com.example.unibus.presentation.user.newTrip.NewTripScreen
 import com.example.unibus.presentation.user.notifications.UserNotificationScreen
+import com.example.unibus.presentation.user.payment.PaymentScreen
 import com.example.unibus.presentation.user.profile.editProfile.EditProfile
 import com.example.unibus.presentation.user.profile.profileDetails.ProfileUserDetails
 
@@ -95,18 +96,25 @@ fun NavGraph(
             )
         }
         composable(
-            route = "${AppDestination.UserLocationDestination.route}?lat={lat}&lng={lng}",
+            route = "${AppDestination.UserLocationDestination.route}?lat={lat}&lng={lng}&userId={userId}&userName={userName}",
             arguments = listOf(
                 navArgument("lat") { type = NavType.StringType },
-                navArgument("lng") { type = NavType.StringType }
+                navArgument("lng") { type = NavType.StringType },
+                navArgument("userId") { type = NavType.StringType },
+                navArgument("userName") { type = NavType.StringType }
             )
         ) { backStackEntry ->
             val lat = backStackEntry.arguments?.getString("lat")?.toDoubleOrNull() ?: 0.0
             val lng = backStackEntry.arguments?.getString("lng")?.toDoubleOrNull() ?: 0.0
+            val userId = backStackEntry.arguments?.getString("userId").orEmpty()
+            val userName = backStackEntry.arguments?.getString("userName").orEmpty()
+
             UserLocationScreen(
                 navController = appState.navController,
                 lat = lat,
-                lng = lng
+                lng = lng,
+                userId = userId,
+                userName = userName
             )
         }
 
@@ -156,6 +164,11 @@ fun NavGraph(
             EditProfile(
                 navController = appState.navController,
                 userId = userId
+            )
+        }
+        composable(AppDestination.PaymentDestination.route) {
+            PaymentScreen(
+                navController = appState.navController,
             )
         }
     }

@@ -10,7 +10,7 @@ data class Notification(
     val nameDriver: String = "",
     val notificationType: String = "",
     val addressMaps: String = "",
-    val documentId: String = ""  // تأكد من أن documentId موجود هنا
+    val documentId: String = ""
 )
 
 data class NotificationWithDocId(

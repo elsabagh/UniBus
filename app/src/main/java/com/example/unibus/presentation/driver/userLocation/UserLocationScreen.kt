@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -50,7 +51,9 @@ import com.google.android.gms.maps.model.MarkerOptions
 fun UserLocationScreen(
     navController: NavController,
     lat: Double,
-    lng: Double
+    lng: Double,
+    userId: String,  // Add userId
+    userName: String // Add userName
 ) {
     val context = LocalContext.current
     val mapView = rememberMapViewWithLifecycle()
@@ -65,9 +68,11 @@ fun UserLocationScreen(
     Scaffold(
         topBar = { TopAppBar("User Location", navController) },
         content = { paddingValues ->
-            Box(modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()) {
+            Box(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize()
+            ) {
 
                 MapViewContent(
                     mapView = mapView,
@@ -85,7 +90,10 @@ fun UserLocationScreen(
                 )
 
                 if (showArrivalButton) {
-                    ArrivalButton(context, modifier = Modifier.align(Alignment.BottomCenter))
+                    ArrivalButton(context,
+                        userId = userId,
+                        userName = userName,
+                        modifier = Modifier.align(Alignment.BottomCenter))
                 }
 
                 if (isMapReady) {
@@ -156,8 +164,11 @@ fun MapViewContent(
 @Composable
 fun ArrivalButton(
     context: Context,
-    modifier: Modifier = Modifier
+    userId: String,
+    userName: String,
+    modifier: Modifier = Modifier,
 ) {
+    val viewModel: UserLocationViewModel = hiltViewModel()
     Box(
         modifier = modifier
             .padding(16.dp)
@@ -168,7 +179,11 @@ fun ArrivalButton(
                 .height(100.dp)
                 .padding(16.dp)
                 .clickable(onClick = {
-                    Toast.makeText(context, "Arrived", Toast.LENGTH_SHORT).show()
+                    viewModel.sendArrivalNotification(
+                        userId = userId,
+                        userName = userName,
+                    )
+                    Toast.makeText(context, "Notification Sent", Toast.LENGTH_SHORT).show()
                 }),
             shape = RoundedCornerShape(16.dp)
         ) {
@@ -189,7 +204,6 @@ fun ArrivalButton(
         }
     }
 }
-
 @Composable
 fun LocationFAB(
     fusedLocationClient: FusedLocationProviderClient,
@@ -205,12 +219,16 @@ fun LocationFAB(
             when {
                 !isLocationPermissionGranted(context) -> {
                     // Handle case where location permissions are not granted
-                    Toast.makeText(context, "Allow location permission first", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Allow location permission first", Toast.LENGTH_SHORT)
+                        .show()
                 }
+
                 !checkIfGpsEnabled(context) -> {
                     // Handle case where GPS is not enabled
-                    Toast.makeText(context, "Enable GPS to fetch your location", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Enable GPS to fetch your location", Toast.LENGTH_SHORT)
+                        .show()
                 }
+
                 else -> {
                     // Fetch location if both GPS is enabled and permissions are granted
                     fetchLocation(fusedLocationClient, context) { lat, lng ->

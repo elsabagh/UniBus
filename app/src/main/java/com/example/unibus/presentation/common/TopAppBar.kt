@@ -10,7 +10,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.unibus.ui.theme.MainColor
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,7 +28,7 @@ fun TopAppBar(label: String, navController: NavController) {
         navigationIcon = {
             IconButton(onClick = {
                 if (!navController.popBackStack()) {
-                    navController.navigate("splash") // Default fallback to a specific screen
+                    navController.navigate("splash")
                 }
             }) {
                 Icon(
@@ -39,4 +41,11 @@ fun TopAppBar(label: String, navController: NavController) {
             containerColor = MainColor
         )
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewTopAppBar() {
+    val navController = rememberNavController()
+    TopAppBar(label = "Preview", navController = navController)
 }

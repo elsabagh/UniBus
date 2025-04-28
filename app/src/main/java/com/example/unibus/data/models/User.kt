@@ -9,6 +9,7 @@ data class User(
     var addressMaps: String = "",
     var userPhoto: String = "",
     val role: String = "user",
+    val priceTrip: String = "",
     val available: String = "",
     val betweenAddress: String = "",
     val nationality: String = "",
@@ -26,6 +27,7 @@ data class User(
     val statusBook: String = "",
     val dateTrip: String = "",
     val timeTrip: String = "",
+    val uniAddress: String = ""
 )
 
 data class UserWithDocId(

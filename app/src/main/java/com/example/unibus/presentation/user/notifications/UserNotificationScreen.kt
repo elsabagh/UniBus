@@ -23,6 +23,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,8 +36,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.unibus.data.models.Notification
+import com.example.unibus.navigation.AppDestination
 import com.example.unibus.navigation.AppDestination.PaymentDestination
 import com.example.unibus.presentation.common.TopAppBar
+import com.example.unibus.presentation.user.payment.PaymentMethodDialog
 import com.example.unibus.ui.theme.MainColor
 
 @Composable
@@ -44,6 +49,10 @@ fun UserNotificationScreen(
     val viewModel: UserNotificationViewModel = hiltViewModel()
     val notifications by viewModel.notifications.collectAsState()
 
+    var showDialog by remember { mutableStateOf(false) }
+    var selectedNotification by remember { mutableStateOf<Notification?>(null) }
+    var selectedPaymentMethod by remember { mutableStateOf("Knet") }
+
     Scaffold(
         topBar = { TopAppBar("Notification", navController) },
         content = { paddingValues ->
@@ -52,14 +61,14 @@ fun UserNotificationScreen(
                     .padding(paddingValues)
                     .padding(16.dp)
             ) {
-
                 LazyColumn {
-                    itemsIndexed(notifications) { _, notification ->
+                    itemsIndexed(notifications.sortedBy { it.date + it.time }) { _, notification ->
                         if (notification.notificationType == "payment") {
                             NotificationItemPay(
                                 notification = notification,
                                 onPaymentClick = {
-                                    navController.navigate(PaymentDestination.route)
+                                    selectedNotification = notification
+                                    showDialog = true
                                 }
                             )
                         } else {
@@ -67,6 +76,25 @@ fun UserNotificationScreen(
                         }
                     }
                 }
+            }
+
+            // Show dialog if needed
+            if (showDialog && selectedNotification != null) {
+                PaymentMethodDialog(
+                    selectedMethod = selectedPaymentMethod,
+                    onSelectMethod = { selectedPaymentMethod = it },
+                    onNext = {
+                        showDialog = false
+                        if (selectedPaymentMethod == "Cash") {
+                            navController.navigate(AppDestination.UserHomeDestination.route)
+                        } else {
+                            navController.navigate(PaymentDestination.route)
+                        }
+                    },
+                    onDismiss = {
+                        showDialog = false
+                    }
+                )
             }
         }
     )

@@ -18,7 +18,7 @@ interface AccountRepository {
         email: String,
         password: String,
         userData: User,
-        userPhotoUri: Uri?
+        userPhotoUri: Uri?,
     )
 
     suspend fun getCurrentUserEmail(): String?

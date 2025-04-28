@@ -190,7 +190,7 @@ fun UserPhotoSection(
         horizontalAlignment = Alignment.Start
     ) {
         Text(
-            text = "User photo (Optional):",
+            text = "User photo:",
             modifier = Modifier,
             fontSize = 16.sp
         )

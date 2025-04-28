@@ -41,4 +41,7 @@ interface StorageFirebaseRepository {
     suspend fun getBookedBusForUser(userId: String): User?
 
     suspend fun getNotificationsForUser(userId: String): List<NotificationWithDocId>
+
+    suspend fun updateUserPrice(userId: String, price: Double)
+
 }

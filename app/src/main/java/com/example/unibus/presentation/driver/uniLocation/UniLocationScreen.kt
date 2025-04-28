@@ -17,6 +17,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,6 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -47,6 +50,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 
 @Composable
 fun UniLocationScreen(navController: NavController) {
+    val viewModel: UniLocationViewModel = hiltViewModel()
     val context = LocalContext.current
     val mapView = rememberMapViewWithLifecycle()
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
@@ -54,47 +58,61 @@ fun UniLocationScreen(navController: NavController) {
     var isMapReady by remember { mutableStateOf(false) }
     var showArrivalButton by remember { mutableStateOf(false) }
 
-    val fixedLatLng = LatLng(30.247764, 31.202864)
-    val radius = 150.0f
+    val uniLatLng by viewModel.uniLatLng.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadUniLatLng()
+    }
 
     Scaffold(
         topBar = { TopAppBar("University Location", navController) },
         content = { paddingValues ->
-            Box(modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()) {
+            uniLatLng?.let { fixedLatLng ->
+                Box(modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize()) {
 
-                MapViewContent(
-                    mapView = mapView,
-                    fixedLatLng = fixedLatLng,
-                    fusedLocationClient = fusedLocationClient,
-                    context = context,
-                    radius = radius,
-                    onLocationFetched = { distance ->
-                        showArrivalButton = distance <= radius
-                    },
-                    onMapReady = { map ->
-                        googleMap = map
-                        isMapReady = true
-                    }
-                )
-
-                if (showArrivalButton) {
-                    ArrivalButton(context, modifier = Modifier.align(Alignment.BottomCenter))
-                }
-
-                if (isMapReady) {
-                    LocationFAB(
+                    MapViewContent(
+                        mapView = mapView,
+                        fixedLatLng = fixedLatLng,
                         fusedLocationClient = fusedLocationClient,
                         context = context,
-                        googleMap = googleMap,
-                        fixedLatLng = fixedLatLng,
-                        radius = radius,
-                        modifier = Modifier.align(Alignment.BottomStart),
+                        radius = 150.0f,
                         onLocationFetched = { distance ->
-                            showArrivalButton = distance <= radius
+                            showArrivalButton = distance <= 150.0f
+                        },
+                        onMapReady = { map ->
+                            googleMap = map
+                            isMapReady = true
                         }
                     )
+
+                    if (showArrivalButton) {
+                        ArrivalButton(context, modifier = Modifier.align(Alignment.BottomCenter))
+                    }
+
+                    if (isMapReady) {
+                        LocationFAB(
+                            fusedLocationClient = fusedLocationClient,
+                            context = context,
+                            googleMap = googleMap,
+                            fixedLatLng = fixedLatLng,
+                            radius = 150.0f,
+                            modifier = Modifier.align(Alignment.BottomStart),
+                            onLocationFetched = { distance ->
+                                showArrivalButton = distance <= 150.0f
+                            }
+                        )
+                    }
+                }
+            } ?: run {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Loading location...")
                 }
             }
         }
@@ -117,7 +135,27 @@ fun MapViewContent(
         update = { mapView ->
             mapView.getMapAsync { map ->
                 map.uiSettings.isZoomControlsEnabled = true
-                map.addMarker(MarkerOptions().position(fixedLatLng).title("University"))
+
+                map.addMarker(
+                    MarkerOptions()
+                        .position(fixedLatLng)
+                        .title("University Location")
+                )
+
+                map.setOnMarkerClickListener { clickedMarker ->
+                    val latLng = clickedMarker.position
+                    val uri = android.net.Uri.parse("geo:${latLng.latitude},${latLng.longitude}?q=${latLng.latitude},${latLng.longitude}(${android.net.Uri.encode(clickedMarker.title)})")
+                    val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, uri).apply {
+                        setPackage("com.google.android.apps.maps")
+                    }
+                    try {
+                        context.startActivity(intent)
+                    } catch (e: android.content.ActivityNotFoundException) {
+                        Toast.makeText(context, "Google Maps app not found", Toast.LENGTH_SHORT).show()
+                    }
+                    true
+                }
+
                 onMapReady(map)
 
                 if (isLocationPermissionGranted(context)) {
@@ -131,16 +169,19 @@ fun MapViewContent(
                                 .fillColor(0x440000FF)
                                 .strokeWidth(4f)
                         )
-                        val location = android.location.Location("")
-                        location.latitude = lat
-                        location.longitude = lng
-                        val fixedLocation = android.location.Location("")
-                        fixedLocation.latitude = fixedLatLng.latitude
-                        fixedLocation.longitude = fixedLatLng.longitude
+                        val location = android.location.Location("").apply {
+                            latitude = lat
+                            longitude = lng
+                        }
+                        val fixedLocation = android.location.Location("").apply {
+                            latitude = fixedLatLng.latitude
+                            longitude = fixedLatLng.longitude
+                        }
                         val distance = location.distanceTo(fixedLocation)
                         onLocationFetched(distance)
                     }
                 }
+
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(fixedLatLng, 15f))
             }
         }
@@ -198,15 +239,12 @@ fun LocationFAB(
         onClick = {
             when {
                 !isLocationPermissionGranted(context) -> {
-                    // Handle case where location permissions are not granted
                     Toast.makeText(context, "Allow location permission first", Toast.LENGTH_SHORT).show()
                 }
                 !checkIfGpsEnabled(context) -> {
-                    // Handle case where GPS is not enabled
                     Toast.makeText(context, "Enable GPS to fetch your location", Toast.LENGTH_SHORT).show()
                 }
                 else -> {
-                    // Fetch location if both GPS is enabled and permissions are granted
                     fetchLocation(fusedLocationClient, context) { lat, lng ->
                         val currentLatLng = LatLng(lat, lng)
                         googleMap?.apply {

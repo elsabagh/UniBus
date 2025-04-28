@@ -30,7 +30,7 @@ fun fetchLocation(
         override fun onLocationResult(locationResult: LocationResult) {
             locationResult.lastLocation?.let { location ->
                 onLocationFetched(location.latitude, location.longitude)
-                fusedLocationClient.removeLocationUpdates(this) // Stop updates after getting location
+                fusedLocationClient.removeLocationUpdates(this)
             }
         }
     }
@@ -56,7 +56,7 @@ fun updateLocation(
 ) {
     val locationRequest = LocationRequest.create().apply {
         priority = Priority.PRIORITY_HIGH_ACCURACY
-        interval = 5000 // جلب الموقع كل 5 ثواني
+        interval = 5000
     }
 
     val locationCallback = object : LocationCallback() {
@@ -68,7 +68,6 @@ fun updateLocation(
                 Toast.makeText(context, "Failed to get location", Toast.LENGTH_SHORT).show()
             }
 
-            // تأكد من عدم إلغاء التحديثات قبل الحصول على الموقع
             fusedLocationClient.removeLocationUpdates(this)
         }
     }

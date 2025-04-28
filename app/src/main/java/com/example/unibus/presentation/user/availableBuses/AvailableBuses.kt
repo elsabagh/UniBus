@@ -66,16 +66,14 @@ import java.util.Locale
 
 @Composable
 fun AvailableBuses(
-    navController: NavController
+    navController: NavController,
 ) {
     val viewModel: AvailableBusesViewModel = hiltViewModel()
-    val driversList = viewModel.drivers.collectAsState().value
     val selectedBus = viewModel.selectedBus.collectAsState().value
-    var selectedPrice by remember { mutableStateOf("") }
+    var selectedPrice by remember { mutableStateOf(0.0) }
     val driversWithDistance = viewModel.driversWithDistance.collectAsState().value
     var showDialog by remember { mutableStateOf(false) }
-    val userBetweenAddress by viewModel.userBetweenAddress.collectAsState()
-
+    val userId = viewModel.userId
     LaunchedEffect(true) {
         viewModel.getAvailableBuses()
     }
@@ -103,15 +101,17 @@ fun AvailableBuses(
                     itemsIndexed(driversWithDistance) { _, pair ->
                         val driver = pair.first
                         val distance = pair.second
-
+                        val price = calculatePrice(distance)
                         BusCard(
                             driver = driver,
-                            distanceInMeters = distance,  // للمسافة والعرض فقط
-                            userBetweenAddress = userBetweenAddress, // لحساب السعر فقط
+                            distanceInMeters = distance,
+                            price = price,
                             isSelected = driver == selectedBus,
                             onBusSelected = { selectedDriver, price ->
                                 viewModel.selectBus(selectedDriver)
                                 selectedPrice = price
+                                viewModel.updateUserPrice(userId, formatToTwoDecimalPlaces(price).toDouble())
+
                             }
                         )
 
@@ -123,7 +123,7 @@ fun AvailableBuses(
                     user = selectedBus ?: User(),
                     price = selectedPrice,
                     onConfirm = {
-                        showDialog = true // عرض الـ Dialog عند الضغط على "Join"
+                        showDialog = true
                     }
 
                 )
@@ -153,15 +153,15 @@ fun AvailableBuses(
 fun BookedButton(
     viewModel: AvailableBusesViewModel,
     user: User,
-    price: String,
-    onConfirm: () -> Unit
+    price: Double,
+    onConfirm: () -> Unit,
 ) {
     val context = LocalContext.current
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
     var currentLocation by remember { mutableStateOf<Pair<Double, Double>?>(null) }
     var currentTime by remember { mutableStateOf<String>("") }
-    val isBusSelected = user.tripNo.isNotEmpty() && price.isNotEmpty()
+    val isBusSelected = user.tripNo.isNotEmpty()
 
     Card(
         modifier = Modifier
@@ -192,7 +192,7 @@ fun BookedButton(
 
                                     val updatedUser = user.copy(
                                         addressMaps = "${currentLocation?.first},${currentLocation?.second}",
-                                        busPrice = price
+                                        busPrice = "$price"
                                     )
                                     onConfirm()
                                     viewModel.bookBus(updatedUser)
@@ -219,13 +219,12 @@ fun BookedButton(
 fun BusCard(
     driver: User,
     distanceInMeters: Double,
-    userBetweenAddress: Double,
+    price: Double,
     isSelected: Boolean,
-    onBusSelected: (User, String) -> Unit
+    onBusSelected: (User, Double) -> Unit,
 ) {
-    val formattedDistance = formatToTwoDecimalPlaces(distanceInMeters)
-    val price = calculatePrice(userBetweenAddress)
-    val formattedPrice = formatToTwoDecimalPlaces(price.toDouble())
+    val formattedDistance = formatToTwoDecimalPlaces(distanceInMeters/1000)
+    val formattedPrice = formatToTwoDecimalPlaces(price)
 
     Card(
         modifier = Modifier
@@ -233,7 +232,7 @@ fun BusCard(
             .padding(vertical = 8.dp)
             .border(1.dp, if (isSelected) MainColor else Color.Gray, RoundedCornerShape(12.dp))
             .clickable {
-                onBusSelected(driver, formattedPrice)
+                onBusSelected(driver, price)
             }
     ) {
         Column(
@@ -260,7 +259,7 @@ fun BusCard(
                 Spacer(modifier = Modifier.weight(1f))
 
                 Text(
-                    text = "$formattedDistance m",
+                    text = "$formattedDistance Km",
                     color = MainColor,
                 )
 
@@ -274,7 +273,7 @@ fun BusCard(
                     modifier = Modifier,
                 )
                 Text(
-                    text = "$formattedPrice",
+                    text = "$formattedPrice k.d",
                     modifier = Modifier.padding(start = 8.dp),
                     color = MainColor,
                 )
@@ -322,7 +321,7 @@ fun BusCard(
                 ) {
                     Row(
                         modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
@@ -422,7 +421,7 @@ fun BusCardPreview() {
         onBusSelected = { _, _ -> },
         isSelected = false,
         distanceInMeters = 44.4,
-        userBetweenAddress = 1234.0
+        price = 123.0
     )
 }
 

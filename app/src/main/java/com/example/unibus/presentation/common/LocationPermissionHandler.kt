@@ -45,7 +45,7 @@ fun LocationPermissionHandler() {
 
     if (showDialog) {
         AlertDialog(
-            onDismissRequest = { /* لا تفعل شيء لإجبار المستخدم */ },
+            onDismissRequest = { },
             title = { Text("Location Permission Required") },
             text = { Text("This app requires location access to function properly.") },
             confirmButton = {
@@ -65,9 +65,11 @@ fun LocationPermissionHandler() {
                 Button(
                     modifier = Modifier.padding(8.dp),
                     onClick = {
-                        context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                            data = android.net.Uri.parse("package:${context.packageName}")
-                        })
+                        context.startActivity(
+                            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                .apply {
+                                    data = android.net.Uri.parse("package:${context.packageName}")
+                                })
                         showDialog = false
                     },
                     colors = ButtonDefaults.buttonColors(MainColor),

@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -144,4 +145,15 @@ fun AccountItem(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewAccountItem() {
+    val sampleUser = User(
+        userName = "John Doe",
+        phoneNumber = "123-456-7890",
+        userPhoto = "https://via.placeholder.com/150"
+    )
+    AccountItem(account = sampleUser, onClick = {})
 }

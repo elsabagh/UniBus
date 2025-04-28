@@ -31,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -38,13 +39,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.unibus.data.models.User
-import com.example.unibus.navigation.AppDestination
 import com.example.unibus.presentation.user.profile.profileDetails.ProfileUserDetailsViewModel
 import com.example.unibus.ui.theme.MainColor
 import com.example.unibus.ui.theme.colorButtonRed
@@ -52,11 +54,19 @@ import com.example.unibus.ui.theme.itemColorProfile
 
 @Composable
 fun DriverProfileUserDetails(
-    navController: NavController
-) {
+    navController: NavController,
+    onLogout: () -> Unit,
+
+    ) {
     val viewModel: ProfileUserDetailsViewModel = hiltViewModel()
     val user by viewModel.user.collectAsState()
-
+    val isAccountSignedOut by viewModel.isAccountSignedOut.collectAsStateWithLifecycle()
+    LaunchedEffect(isAccountSignedOut) {
+        if (isAccountSignedOut) {
+            onLogout()
+            viewModel.resetIsAccountSignedOut()
+        }
+    }
     Scaffold(
         topBar = { DriverProfileDetailsTopAppBar(navController, user) },
         content = { paddingValues ->
@@ -92,6 +102,7 @@ fun DriverProfileUserDetails(
         }
     )
 }
+
 
 @Composable
 fun ProfileContent(
@@ -163,7 +174,7 @@ fun ProfileDetailCard(label: String, value: String) {
                     .background(itemColorProfile)
                     .padding(8.dp)
                     .align(Alignment.Start),
-                color = MaterialTheme.colorScheme.background
+                color = Color.Black
             )
         }
         Spacer(modifier = Modifier.height(8.dp))
@@ -179,12 +190,6 @@ fun LogoutButton(
         onClick = {
             userViewModel.signOutFromAccount()
 
-            navController.popBackStack(AppDestination.SignInDestination.route, inclusive = false)
-
-            navController.navigate(AppDestination.SignInDestination.route) {
-                popUpTo(AppDestination.SignInDestination.route) { inclusive = true }
-                launchSingleTop = true
-            }
         },
         colors = ButtonDefaults.buttonColors(colorButtonRed),
         modifier = Modifier
@@ -222,4 +227,18 @@ fun DriverProfileDetailsTopAppBar(navController: NavController, user: User?) {
             containerColor = MainColor
         )
     )
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun ProfileContentPreview() {
+    val sampleUser = User(
+        userName = "John Doe",
+        email = "john.doe@example.com",
+        idNumber = "123456",
+        phoneNumber = "123-456-7890",
+        userPhoto = "https://via.placeholder.com/150"
+    )
+    ProfileContent(user = sampleUser)
 }

@@ -36,7 +36,7 @@ class AvailableBusesViewModel @Inject constructor(
 
     private val _userBetweenAddress = MutableStateFlow(0.0)
     val userBetweenAddress: StateFlow<Double> = _userBetweenAddress.asStateFlow()
-
+    val userId = accountRepository.currentUserId
     fun getAvailableBuses() {
         viewModelScope.launch {
             _drivers.value = storageFirebaseRepository.getAvailableBuses()
@@ -48,7 +48,7 @@ class AvailableBusesViewModel @Inject constructor(
                 val driversWithDistance = mutableListOf<Pair<User, Double>>()
 
                 _drivers.value.forEach { driver ->
-                    val distance = getDistance(it.addressMaps, driver.addressMaps)
+                    val distance = getDistance(it.addressMaps, driver.uniAddress)
                     driversWithDistance.add(Pair(driver, distance))
                 }
 
@@ -81,14 +81,23 @@ class AvailableBusesViewModel @Inject constructor(
         _selectedBus.value = driver
     }
 
+    fun updateUserPrice(userId: String, price: Double) {
+        viewModelScope.launch {
+            try {
+
+                storageFirebaseRepository.updateUserPrice(userId, price)
+                Log.d("Booking", "User price updated successfully to $price for user $userId")
+            } catch (e: Exception) {
+                Log.e("Booking", "Error updating user price: ${e.message}")
+            }
+        }
+    }
 
     fun bookBus(user: User) {
         viewModelScope.launch {
             _selectedBus.value?.let { bus ->
                 val currentUser = accountRepository.getCurrentUser()
                 currentUser?.let {
-                    val fixedUserAddress = "30.026549, 31.211378"
-                    val distance = getDistance(fixedUserAddress, bus.addressMaps)
 
                     storageFirebaseRepository.createBookBusRequest(
                         currentUser.copy(
@@ -98,7 +107,6 @@ class AvailableBusesViewModel @Inject constructor(
                             statusBook = "processing",
                             addressMaps = user.addressMaps,
                             busPrice = user.busPrice,
-                            betweenAddress = "$distance m"
                         )
                     )
                 }

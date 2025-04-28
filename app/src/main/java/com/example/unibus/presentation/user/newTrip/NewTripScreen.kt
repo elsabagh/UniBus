@@ -54,6 +54,7 @@ import com.example.unibus.navigation.AppDestination
 import com.example.unibus.presentation.common.TopAppBar
 import com.example.unibus.ui.theme.MainColor
 import com.example.unibus.utils.checkIfGpsEnabled
+import com.example.unibus.utils.snackbar.SnackBarManager
 import com.example.unibus.utils.updateLocation
 import com.google.android.gms.location.LocationServices
 import java.text.SimpleDateFormat
@@ -116,7 +117,6 @@ fun NewTripScreen(
     )
 }
 
-// region SelectDate
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectDate(
@@ -202,9 +202,7 @@ fun DateSelectionDialog(
         )
     }
 }
-// endregion
 
-// region SelectTime
 @Composable
 fun SelectTime(
     selectedTime: String,
@@ -303,14 +301,13 @@ fun TimePickerDialog(
         modifier = modifier
     )
 }
-// endregion
 
-// region SelectLocation
 @Composable
 fun SelectLocation(
     context: Context, uiState: NewTripState, viewModel: NewTripViewModel
 ) {
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+    var location by remember { mutableStateOf(uiState.selectLocation) }
 
 
     Column {
@@ -321,9 +318,10 @@ fun SelectLocation(
             color = Color.Gray
         )
         OutlinedTextField(
-            value = uiState.selectLocation,
-            onValueChange = {
-                viewModel::onLocationChange
+            value = location,
+            onValueChange = { newLocation ->
+                location = newLocation
+                viewModel.onLocationChange(newLocation)
             },
             placeholder = {
                 Text(
@@ -338,8 +336,9 @@ fun SelectLocation(
                         Toast.makeText(context, "Please enable GPS", Toast.LENGTH_SHORT).show()
                         return@IconButton
                     }
-                    updateLocation(fusedLocationClient, context) { location ->
-                        viewModel.onLocationChange(location)
+                    updateLocation(fusedLocationClient, context) { currentLocation ->
+                        location = currentLocation
+                        viewModel.onLocationChange(currentLocation)
                     }
                 }) {
                     Icon(Icons.Default.LocationOn, contentDescription = "Select location")
@@ -354,10 +353,6 @@ fun SelectLocation(
     }
 }
 
-
-// endregion
-
-// region AvailableBusesButton
 @Composable
 fun AvailableBusesButton(
     onClick: () -> Unit = {},
@@ -375,7 +370,12 @@ fun AvailableBusesButton(
                 if (isEnabled) it.clickable {
                     viewModel.updateUserTrip()
                     onClick()
-                } else it
+                } else {
+                    it.clickable {
+                        SnackBarManager.showMessage(R.string.please_select_a_location_first)
+
+                    }
+                }
             },
         colors = CardDefaults.cardColors(MainColor),
     ) {
@@ -394,5 +394,3 @@ fun AvailableBusesButton(
         }
     }
 }
-
-// endregion

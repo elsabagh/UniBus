@@ -35,7 +35,7 @@ object NotificationUtil {
             putExtra(
                 "navigateTo",
                 AppDestination.NotificationUserDestination.route
-            ) // Match navigation route
+            )
         }
 
         val pendingIntent = PendingIntent.getActivity(

@@ -39,7 +39,6 @@ import coil.compose.rememberImagePainter
 import com.example.unibus.data.models.User
 import com.example.unibus.navigation.AppDestination
 import com.example.unibus.ui.theme.MainColor
-import com.example.unibus.ui.theme.UniBusTheme
 import com.example.unibus.ui.theme.itemColorProfile
 import com.google.android.gms.maps.model.LatLng
 
@@ -48,14 +47,13 @@ import com.google.android.gms.maps.model.LatLng
 fun UserDetailsDialog(
     user: User,
     onDismiss: () -> Unit,
-    navController: NavController
+    navController: NavController,
 ) {
-    // تقسيم addressMaps إلى خط العرض وخط الطول
     val coordinates = user.addressMaps.split(",")
-    val lat = coordinates[0].toDouble()  // استخراج خط العرض
-    val lng = coordinates[1].toDouble()  // استخراج خط الطول
-    val userLocation = LatLng(lat, lng)  // إنشاء متغير LatLng من الإحداثيات
-    val userId = user.userId // تحويل LatLng إلى سلسلة نصية
+    val lat = coordinates[0].toDouble()
+    val lng = coordinates[1].toDouble()
+    val userLocation = LatLng(lat, lng)
+    val userId = user.userId
     Log.d("UserLocationScreen", "User Location: $lat")
     Log.d("UserLocationScreen", "User Location: $lng")
     Log.d("UserLocationScreen", "User ID: $userId")
@@ -114,10 +112,11 @@ fun UserDetailsDialog(
                     .padding(top = 8.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .clickable(
-                        onClick = {navController.navigate(
-                            AppDestination.UserLocationDestination.route +
-                                    "?lat=${lat}&lng=${lng}&userId=${user.userId}&userName=${user.userName}"
-                        )
+                        onClick = {
+                            navController.navigate(
+                                AppDestination.UserLocationDestination.route +
+                                        "?lat=${lat}&lng=${lng}&userId=${user.userId}&userName=${user.userName}"
+                            )
                         }),
                 colors = CardDefaults.cardColors(MainColor),
             ) {
@@ -134,7 +133,6 @@ fun UserDetailsDialog(
         }
     )
 }
-
 
 
 @Composable
@@ -197,18 +195,17 @@ fun LocationText(location: String) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewUserDetailsDialog() {
-    UniBusTheme {
-        UserDetailsDialog(
-            user = User(
-                userName = "John Doe",
-                email = "johndoe@example.com",
-                idNumber = "12345",
-                phoneNumber = "123-456-7890",
-                addressMaps = "37.7749,-122.4194",
-                userPhoto = ""
-            ),
-            onDismiss = {},
-            navController = TODO()
-        )
-    }
+    val sampleUser = User(
+        userName = "John Doe",
+        email = "johndoe@example.com",
+        idNumber = "12345",
+        phoneNumber = "123-456-7890",
+        addressMaps = "37.7749,-122.4194",
+        userPhoto = "https://via.placeholder.com/150"
+    )
+    UserDetailsDialog(
+        user = sampleUser,
+        onDismiss = {},
+        navController = NavController(LocalContext.current)
+    )
 }

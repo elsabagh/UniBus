@@ -5,6 +5,6 @@ data class GraphHopperResponse(
 )
 
 data class Path(
-    val distance: Double, // المسافة بالمتر
-    val time: Long  // الزمن بالملي ثانية
+    val distance: Double,
+    val time: Long
 )

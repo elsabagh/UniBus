@@ -120,7 +120,7 @@ fun EditProfile(
                             editUserViewModel.updateUserEmail(
                                 currentPassword = currentPassword,
                                 newEmail = newEmail,
-                                navController = navController, // ✅ تم تمرير `navController`
+                                navController = navController,
                                 onSuccess = {
                                     Toast.makeText(
                                         context,

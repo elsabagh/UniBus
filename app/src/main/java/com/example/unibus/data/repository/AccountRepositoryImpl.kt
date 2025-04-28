@@ -19,7 +19,7 @@ import javax.inject.Inject
 class AccountRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val fireStore: FirebaseFirestore,
-    private val storage: FirebaseStorage
+    private val storage: FirebaseStorage,
 ) : AccountRepository {
     override val currentUser: Flow<User>
         get() = callbackFlow {
@@ -59,7 +59,7 @@ class AccountRepositoryImpl @Inject constructor(
         email: String,
         password: String,
         userData: User,
-        userPhotoUri: Uri?
+        userPhotoUri: Uri?,
     ) {
         try {
             val result = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
@@ -73,6 +73,9 @@ class AccountRepositoryImpl @Inject constructor(
             fireStore.collection("users").document(userId).set(user).await()
 
         } catch (e: Exception) {
+            if (e.message?.contains("email address is already in use") == true) {
+                throw Exception("This email address is already in use.")
+            }
             throw Exception("Failed to create account: ${e.message}", e)
         }
     }
@@ -82,21 +85,18 @@ class AccountRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateUserEmail(currentPassword: String, newEmail: String): Result<Unit> {
-        val user = firebaseAuth.currentUser ?: return Result.failure(Exception("No authenticated user found"))
+        val user = firebaseAuth.currentUser
+            ?: return Result.failure(Exception("No authenticated user found"))
 
         return try {
-            // إعادة التحقق من هوية المستخدم
             val credential = EmailAuthProvider.getCredential(user.email!!, currentPassword)
             user.reauthenticate(credential).await()
 
-            // تحديث الإيميل في Firebase Auth
             user.updateEmail(newEmail).await()
 
-            // تحديث الإيميل في Firestore
             fireStore.collection("users").document(user.uid)
                 .update("email", newEmail).await()
 
-            // إعادة تسجيل الدخول لضمان استمرارية الجلسة
             firebaseAuth.signOut()
             firebaseAuth.signInWithEmailAndPassword(newEmail, currentPassword).await()
 
@@ -140,7 +140,7 @@ class AccountRepositoryImpl @Inject constructor(
     private suspend fun uploadImageToStorage(
         userId: String,
         fileUri: Uri,
-        fileName: String
+        fileName: String,
     ): String {
         return try {
             val ref = storage.reference.child("users/$userId/$fileName.jpg")
@@ -188,25 +188,6 @@ class AccountRepositoryImpl @Inject constructor(
             throw IOException("Network error occurred during sign-out: ${e.message}", e)
         }
     }
-
-    // حذف الصور من Firebase Storage
-    private suspend fun deleteUserImagesFromStorage(userId: String) {
-        try {
-            // تحديد مسارات الصور المرتبطة بالحساب
-            val userPhotoRef = storage.reference.child("users/$userId/user_photo.jpg")
-
-            try {
-                userPhotoRef.delete().await()
-                Log.d("FirebaseStorage", "User photo image deleted successfully.")
-            } catch (e: Exception) {
-                Log.e("FirebaseStorage", "Error deleting User photo image: ${e.message}")
-            }
-
-        } catch (e: Exception) {
-            Log.e("FirebaseStorage", "Error deleting user images: ${e.message}")
-        }
-    }
-
 
     companion object {
         const val LINK_ACCOUNT_TRACE = "linkAccount"

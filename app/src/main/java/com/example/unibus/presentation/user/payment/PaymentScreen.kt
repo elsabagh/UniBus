@@ -32,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,22 +42,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.unibus.R
+import com.example.unibus.data.models.User
+import com.example.unibus.navigation.AppDestination
 import com.example.unibus.presentation.common.TopAppBar
+import com.example.unibus.presentation.signUp.components.VerifyDialog
 import com.example.unibus.ui.theme.MainColor
 import com.example.unibus.ui.theme.UniBusTheme
 
 @Composable
 fun PaymentScreen(
-    navController: NavController
+    navController: NavController,
 ) {
+    val paymentViewModel: PaymentViewModel = hiltViewModel()
+    val user by paymentViewModel.user.collectAsState()
+    var showDialog by remember { mutableStateOf(false) }
+
     Scaffold(
-        topBar = { TopAppBar("Students", navController) },
+        topBar = { TopAppBar("Knet", navController) },
         content = { paddingValues ->
             Column(
                 modifier = Modifier
@@ -65,18 +72,55 @@ fun PaymentScreen(
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                HeaderSection()
+                user?.let { user ->
+                    HeaderSection(
+                        user = user
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(16.dp))
                 BankAndCardDetails()
                 Spacer(modifier = Modifier.height(16.dp))
-                ActionButtons()
+                ActionButtons(
+                    onSubmit = {
+                        showDialog = true
+                    },
+                    onCancel = {
+                        navController.popBackStack(
+                            AppDestination.UserHomeDestination.route,
+                            inclusive = false
+                        )
+                        navController.navigate(AppDestination.UserHomeDestination.route) {
+                            popUpTo(AppDestination.UserHomeDestination.route) { inclusive = true }
+                        }
+                    }
+                )
             }
         }
     )
+    if (showDialog) {
+        VerifyDialog(
+            onConfirm = {
+                showDialog = false
+                navController.popBackStack(
+                    AppDestination.UserHomeDestination.route,
+                    inclusive = false
+                )
+                navController.navigate(AppDestination.UserHomeDestination.route) {
+                    popUpTo(AppDestination.UserHomeDestination.route) { inclusive = true }
+                }
+            },
+            imageResId = R.drawable.success_pay,
+            message = "You have successfully completed the payment",
+            buttonText = "Home"
+        )
+    }
 }
 
 @Composable
-fun HeaderSection() {
+fun HeaderSection(
+    user: User
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(4.dp)
@@ -102,7 +146,7 @@ fun HeaderSection() {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text("Merchant:", fontWeight = FontWeight.Bold)
-                Text("Upayments Company")
+                Text("payments Company")
             }
 
             Spacer(
@@ -119,7 +163,7 @@ fun HeaderSection() {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text("Amount:", fontWeight = FontWeight.Bold)
-                Text("KD 3.000")
+                Text("${user.busPrice} KD")
             }
             Spacer(
                 modifier = Modifier
@@ -144,50 +188,25 @@ fun BankAndCardDetails() {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            val bankOptions = listOf("NBK", "Boubyan", "KFH", "Gulf Bank")
-            var selectedBank by remember { mutableStateOf("Select your bank") }
-
-            Text("Select your bank:", fontWeight = FontWeight.SemiBold)
-            DropdownMenuField(
-                options = bankOptions,
-                defaultText = selectedBank,
-                onOptionSelected = { selectedBank = it },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(Color.LightGray)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            val prefixOptions = listOf("123", "456", "789")
-            var selectedPrefix by remember { mutableStateOf("Prefix") }
 
             Text("Card Number:", fontWeight = FontWeight.SemiBold)
+            var cardNumber by remember { mutableStateOf("") }
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                DropdownMenuField(
-                    options = prefixOptions,
-                    defaultText = selectedPrefix,
-                    onOptionSelected = { selectedPrefix = it },
-                    modifier = Modifier.weight(1f)
-                )
                 TextField(
-                    value = "",
-                    onValueChange = { },
+                    value = cardNumber,
+                    onValueChange = {
+                        cardNumber = it
+                    },
                     label = { "Card Number" },
                     modifier = Modifier
                         .weight(2f)
                         .background(Color.White, RoundedCornerShape(8.dp))
-                        .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp))
-                        .padding(0.dp),
+                        .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp)),
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true,
                     colors = TextFieldDefaults.colors(
@@ -197,8 +216,6 @@ fun BankAndCardDetails() {
                         unfocusedContainerColor = MaterialTheme.colorScheme.background
                     ),
                 )
-
-
             }
 
             Spacer(
@@ -209,23 +226,36 @@ fun BankAndCardDetails() {
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text("Expiration Date:", fontWeight = FontWeight.SemiBold)
+            val listOdMonth = listOf(
+                "01", "02", "03", "04", "05", "06",
+                "07", "08", "09", "10", "11", "12"
+            )
+            var selectedMonth by remember { mutableStateOf("MM") }
+            val listOfYear = listOf(
+                "2025", "2026", "2027", "2028",
+                "2029", "2030", "2031", "2032",
+                "2033", "2034", "2035", "2036",
+            )
+            var selectedYear by remember { mutableStateOf("YY") }
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
-                    label = { Text("MM") },
+                Text("Expiration Date:", fontWeight = FontWeight.SemiBold)
+                DropdownMenuField(
+                    options = listOdMonth,
+                    defaultText = selectedMonth,
+                    onOptionSelected = { selectedMonth = it },
                     modifier = Modifier.weight(1f)
                 )
-                OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
-                    label = { Text("YYYY") },
+
+                DropdownMenuField(
+                    options = listOfYear,
+                    defaultText = selectedYear,
+                    onOptionSelected = { selectedYear = it },
                     modifier = Modifier.weight(1f)
                 )
+
             }
 
             Spacer(
@@ -236,15 +266,22 @@ fun BankAndCardDetails() {
             )
 
             Spacer(modifier = Modifier.height(8.dp))
+            var pinValue by remember { mutableStateOf("") }
 
-            Text("PIN:", fontWeight = FontWeight.SemiBold)
-            OutlinedTextField(
-                value = "",
-                onValueChange = {},
-                label = { Text("Pin") },
-                visualTransformation = PasswordVisualTransformation(),
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(106.dp),
                 modifier = Modifier.fillMaxWidth()
-            )
+            ) {
+                Text("PIN:", fontWeight = FontWeight.SemiBold)
+                OutlinedTextField(
+                    value =pinValue,
+                    onValueChange = {
+                        pinValue = it
+                    },
+                    label = { Text("Pin") },
+                    modifier = Modifier.weight(1f)
+                )
+            }
             Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -256,7 +293,10 @@ fun BankAndCardDetails() {
 }
 
 @Composable
-fun ActionButtons() {
+fun ActionButtons(
+    onSubmit: () -> Unit = {},
+    onCancel: () -> Unit = {},
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(4.dp)
@@ -270,7 +310,9 @@ fun ActionButtons() {
 
         ) {
             Button(
-                onClick = { /* Handle submit */ },
+                onClick = {
+                    onSubmit()
+                },
                 modifier = Modifier
                     .weight(1f),
                 shape = RoundedCornerShape(8.dp),
@@ -280,7 +322,9 @@ fun ActionButtons() {
             }
 
             Button(
-                onClick = { /* Handle cancel */ },
+                onClick = {
+                    onCancel()
+                },
                 modifier = Modifier
                     .weight(1f),
                 shape = RoundedCornerShape(8.dp),
@@ -298,7 +342,7 @@ fun DropdownMenuField(
     options: List<String>,
     defaultText: String,
     onOptionSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -324,7 +368,6 @@ fun DropdownMenuField(
                 )
             }
         }
-
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
@@ -341,13 +384,33 @@ fun DropdownMenuField(
         }
     }
 }
+@Preview(showBackground = true)
+@Composable
+fun HeaderSectionPreview() {
+    UniBusTheme {
+        HeaderSection(
+            user = User(
+                userName = "John Doe",
+                busPrice = "5.0",
+            )
+        )
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
-fun PaymentScreenPreview() {
+fun BankAndCardDetailsPreview() {
     UniBusTheme {
-        PaymentScreen(
-            navController = rememberNavController()
+        BankAndCardDetails()
+    }
+}
+@Preview(showBackground = true)
+@Composable
+fun ActionButtonsPreview() {
+    UniBusTheme {
+        ActionButtons(
+            onSubmit = { /* Handle submit */ },
+            onCancel = { /* Handle cancel */ }
         )
     }
 }

@@ -33,12 +33,12 @@ fun NavGraph(
     userRole: String?,
     isAccountReady: Boolean,
     modifier: Modifier = Modifier,
-    navigateTo: String // Add navigateTo parameter
+    navigateTo: String,
 
-) {
+    ) {
     NavHost(
         navController = appState.navController,
-        startDestination = if (navigateTo.isNotEmpty()) navigateTo else "splash", // Use navigateTo if provided
+        startDestination = if (navigateTo.isNotEmpty()) navigateTo else "splash",
         modifier = modifier
     ) {
         composable(route = "splash") {
@@ -58,9 +58,8 @@ fun NavGraph(
         composable(route = SignInDestination.route) {
             SignInScreen(
                 onSignInClick = {
-                    appState.navigateSingleTopToAndPopupTo(
-                        route = AppDestination.UserHomeDestination.route,
-                        popUpToRoute = AppDestination.UserHomeDestination.route
+                    appState.navigateSingleTopToAndClearStack(
+                        route = AppDestination.UserHomeDestination.route
                     )
                 },
                 onSignUpClickNav = {
@@ -70,9 +69,8 @@ fun NavGraph(
                     )
                 },
                 onDriverSignIn = {
-                    appState.navigateSingleTopToAndPopupTo(
-                        route = AppDestination.DriverHomeDestination.route,
-                        popUpToRoute = AppDestination.DriverHomeDestination.route
+                    appState.navigateSingleTopToAndClearStack(
+                        route = AppDestination.DriverHomeDestination.route
                     )
                 }
 
@@ -131,6 +129,11 @@ fun NavGraph(
         composable(AppDestination.ProfileDriverDestination.route) {
             DriverProfileUserDetails(
                 navController = appState.navController,
+                onLogout = {
+                    appState.navigateSingleTopToAndClearStack(
+                        route = SignInDestination.route,
+                    )
+                }
             )
         }
 
@@ -147,6 +150,11 @@ fun NavGraph(
         composable(AppDestination.ProfileUserDestination.route) {
             ProfileUserDetails(
                 navController = appState.navController,
+                onLogout = {
+                    appState.navigateSingleTopToAndClearStack(
+                        route = SignInDestination.route,
+                    )
+                }
             )
         }
         composable(AppDestination.NewTripDestination.route) {

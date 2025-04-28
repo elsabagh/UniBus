@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
-    private val accountRepository: AccountRepository
+    private val accountRepository: AccountRepository,
 ) : ViewModel() {
 
     private var _uiState = MutableStateFlow(SignUpState())
@@ -80,6 +80,10 @@ class SignUpViewModel @Inject constructor(
             SnackBarManager.showMessage(R.string.password_match_error)
             return
         }
+        if (userPhotoUri == null) {
+            SnackBarManager.showMessage(R.string.image_upload_error)
+            return
+        }
         _uiState.value = _uiState.value.copy(isLoading = true)
 
         viewModelScope.launch {
@@ -106,9 +110,11 @@ class SignUpViewModel @Inject constructor(
 
                 _isAccountCreated.value = true
             } catch (e: Exception) {
-                if (e.message?.contains(R.string.email_already_in_use.toString()) == true) {
-                    SnackBarManager.showMessage(R.string.email_error)
+                if (e.message?.contains("email address is already in use") == true) {
+                    // في حال كان البريد الإلكتروني موجودًا
+                    SnackBarManager.showMessage(R.string.email_already_in_use)
                 } else {
+                    // إذا كانت هناك مشكلة أخرى
                     SnackBarManager.showMessage(R.string.account_creation_failed)
                 }
             } finally {

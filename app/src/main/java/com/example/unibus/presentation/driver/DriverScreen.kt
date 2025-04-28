@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -519,4 +520,56 @@ fun ButtonEmptyBus(
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewDriverCard() {
+    DriverCard(
+        user = User(
+            userName = "John Doe",
+            userPhoto = "https://example.com/photo.jpg",
+            tripNo = "123",
+            availableSeats = "10",
+            reservedSeats = "5"
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewCurrentTrip() {
+    CurrentTrip(
+        driver = User(
+            userName = "John Doe",
+            userPhoto = "https://example.com/photo.jpg",
+            tripNo = "123",
+            availableSeats = "10",
+            reservedSeats = "5"
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewUniversityLocation() {
+    UniversityLocation(
+        onClick = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewStudentsCard() {
+    StudentsCard(
+        onClick = {}
+    )
+}
+@Preview(showBackground = true)
+@Composable
+fun PreviewButtonEmptyBus() {
+    ButtonEmptyBus(
+        onClick = {}
+    )
+}
+
 

@@ -64,7 +64,7 @@
     <string name="user_not_found">user_not_found</string>
     <string name="invalid_role_error">invalid role</string>
     <string name="empty_name_error">empty name </string>
-    <string name="image_upload_error">image upload</string>
+    <string name="image_upload_error">please upload image</string>
     <string name="please_upload_all_required_images">Please upload all required images</string>
     <string name="created_account">created account</string>
     <string name="account_status_not_accepted">Your account is not yet accepted. Please check your account status.</string>
@@ -82,5 +82,6 @@
     <string name="your_account_has_been">Your account has been\n</string>
     <string name="successfully_created">successfully created!</string>
     <string name="login_now">Login now</string>
+    <string name="please_select_a_location_first">Please select a location first</string>
 
 </resources>

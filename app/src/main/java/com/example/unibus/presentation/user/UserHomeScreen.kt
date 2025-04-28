@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.compose.rememberImagePainter
 import com.example.unibus.R
@@ -80,8 +79,12 @@ fun UserHomeScreen(
     }
 
     LaunchedEffect(Unit) {
-        userHomeViewModel.loadCurrentUser()
-        userHomeViewModel.loadBookedBusForUser()
+        while (true) {
+            userHomeViewModel.loadCurrentUser()
+            userHomeViewModel.loadBookedBusForUser()
+            delay(1000)
+
+        }
     }
     Row(
         modifier = Modifier
@@ -254,7 +257,7 @@ fun BooKBusCard(
                 ) {
                     Row(
                         modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
@@ -417,7 +420,7 @@ fun NewTripCard(onNewTripClick: () -> Unit) {
                 painter = rememberImagePainter(R.drawable.icon_bus),
                 contentDescription = "Bus",
                 modifier = Modifier
-                    .size(100.dp)
+                    .size(64.dp)
                     .padding(16.dp)
             )
             Text(
@@ -485,7 +488,6 @@ fun NewTripCard(onNewTripClick: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun UserCardPreview() {
-    val navController = rememberNavController()
     val user = User(
         userName = "John Doe",
         userPhoto = "https://example.com/photo.jpg"
@@ -493,4 +495,22 @@ fun UserCardPreview() {
     UserCard(
         user = user
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun NewTripCardPreview() {
+    NewTripCard(onNewTripClick = {})
+}
+@Preview(showBackground = true)
+@Composable
+fun BooKBusCardPreview() {
+    val user = User(
+        userName = "John Doe",
+        userPhoto = "https://example.com/photo.jpg",
+        tripNo = "12345",
+        availableSeats = "5",
+        reservedSeats = "10"
+    )
+    BooKBusCard(user = user)
 }

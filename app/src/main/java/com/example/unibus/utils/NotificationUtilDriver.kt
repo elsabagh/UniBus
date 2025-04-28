@@ -33,7 +33,7 @@ object NotificationUtilDriver {
             putExtra(
                 "navigateTo",
                 AppDestination.NotificationDriverDestination.route
-            ) // Match navigation route
+            )
         }
 
         val pendingIntent = PendingIntent.getActivity(

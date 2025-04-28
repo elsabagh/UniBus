@@ -1,4 +1,4 @@
-package com.example.unibus.presentation.user
+package com.example.unibus.presentation.user.payment
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class UserHomeViewModel @Inject constructor(
+class PaymentViewModel @Inject constructor(
     private val accountRepository: AccountRepository,
     private val storageFirebaseRepository: StorageFirebaseRepository,
 ) : ViewModel() {
@@ -20,30 +20,13 @@ class UserHomeViewModel @Inject constructor(
     private val _user = MutableStateFlow<User?>(null)
     val user: StateFlow<User?> = _user
 
-
-    private val _driverForBooking = MutableStateFlow<User?>(null)
-    val driverForBooking: StateFlow<User?> = _driverForBooking
-
-    private val _bookedBus = MutableStateFlow<User?>(null)
-    val bookedBus: StateFlow<User?> = _bookedBus
-
     init {
         loadCurrentUser()
-        loadBookedBusForUser()
     }
 
     fun loadCurrentUser() {
         viewModelScope.launch {
             _user.value = accountRepository.getCurrentUser()
-        }
-    }
-
-    fun loadBookedBusForUser() {
-        viewModelScope.launch {
-            val userId = accountRepository.currentUserId
-            userId?.let {
-                _bookedBus.value = storageFirebaseRepository.getBookedBusForUser(it)
-            }
         }
     }
 }

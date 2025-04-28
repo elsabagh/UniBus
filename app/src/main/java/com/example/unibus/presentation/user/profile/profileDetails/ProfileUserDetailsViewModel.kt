@@ -45,4 +45,8 @@ class ProfileUserDetailsViewModel@Inject constructor(
             _isAccountSignedOut.value = true
         }
     }
+
+    fun resetIsAccountSignedOut() {
+        _isAccountSignedOut.value = false
+    }
 }

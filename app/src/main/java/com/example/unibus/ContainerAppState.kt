@@ -46,6 +46,13 @@ class ContainerAppState(
         }
     }
 
+    fun navigateSingleTopToAndClearStack(route: String) {
+        navController.navigate(route) {
+            popUpTo(0) { inclusive = true }
+            launchSingleTop = true
+        }
+    }
+
 }
 
 

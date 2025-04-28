@@ -1,7 +1,10 @@
 package com.example.unibus.presentation.driver.userLocation
 
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
 import android.location.Location
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -52,8 +55,8 @@ fun UserLocationScreen(
     navController: NavController,
     lat: Double,
     lng: Double,
-    userId: String,  // Add userId
-    userName: String // Add userName
+    userId: String,
+    userName: String
 ) {
     val context = LocalContext.current
     val mapView = rememberMapViewWithLifecycle()
@@ -131,7 +134,27 @@ fun MapViewContent(
         update = { mapView ->
             mapView.getMapAsync { map ->
                 map.uiSettings.isZoomControlsEnabled = true
-                map.addMarker(MarkerOptions().position(fixedLatLng).title("University"))
+
+                map.addMarker(
+                    MarkerOptions()
+                        .position(fixedLatLng)
+                        .title("User Location")
+                )
+
+                map.setOnMarkerClickListener { clickedMarker ->
+                    val latLng = clickedMarker.position
+                    val uri = Uri.parse("geo:${latLng.latitude},${latLng.longitude}?q=${latLng.latitude},${latLng.longitude}(${Uri.encode(clickedMarker.title)})")
+                    val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+                        setPackage("com.google.android.apps.maps")
+                    }
+                    try {
+                        context.startActivity(intent)
+                    } catch (e: ActivityNotFoundException) {
+                        Toast.makeText(context, "Google Maps app not found", Toast.LENGTH_SHORT).show()
+                    }
+                    true
+                }
+
                 onMapReady(map)
 
                 if (isLocationPermissionGranted(context)) {
@@ -145,16 +168,19 @@ fun MapViewContent(
                                 .fillColor(0x440000FF)
                                 .strokeWidth(4f)
                         )
-                        val location = Location("")
-                        location.latitude = lat
-                        location.longitude = lng
-                        val fixedLocation = Location("")
-                        fixedLocation.latitude = fixedLatLng.latitude
-                        fixedLocation.longitude = fixedLatLng.longitude
+                        val location = Location("").apply {
+                            latitude = lat
+                            longitude = lng
+                        }
+                        val fixedLocation = Location("").apply {
+                            latitude = fixedLatLng.latitude
+                            longitude = fixedLatLng.longitude
+                        }
                         val distance = location.distanceTo(fixedLocation)
                         onLocationFetched(distance)
                     }
                 }
+
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(fixedLatLng, 15f))
             }
         }
@@ -218,24 +244,21 @@ fun LocationFAB(
         onClick = {
             when {
                 !isLocationPermissionGranted(context) -> {
-                    // Handle case where location permissions are not granted
                     Toast.makeText(context, "Allow location permission first", Toast.LENGTH_SHORT)
                         .show()
                 }
 
                 !checkIfGpsEnabled(context) -> {
-                    // Handle case where GPS is not enabled
                     Toast.makeText(context, "Enable GPS to fetch your location", Toast.LENGTH_SHORT)
                         .show()
                 }
 
                 else -> {
-                    // Fetch location if both GPS is enabled and permissions are granted
                     fetchLocation(fusedLocationClient, context) { lat, lng ->
                         val currentLatLng = LatLng(lat, lng)
                         googleMap?.apply {
                             clear()
-                            addMarker(MarkerOptions().position(fixedLatLng).title("University"))
+                            addMarker(MarkerOptions().position(fixedLatLng).title("User Location"))
                             addCircle(
                                 CircleOptions()
                                     .center(currentLatLng)

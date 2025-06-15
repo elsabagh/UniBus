@@ -63,3 +63,18 @@ UNI Bus Shuttle is an Android application that allows university students to boo
 1. **Clone the Repository:**
    ```bash
    git clone https://github.com/elsabagh/UniBus.git
+
+---
+## 🖼️ Screenshots
+
+### 👨‍🎓 Student Screens
+
+![Student](images/User%20screen.png)
+
+---
+
+### 🚍 Driver Screens
+
+![Driver](images/Driver%20screen.png)
+
+
